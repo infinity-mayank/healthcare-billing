@@ -34,9 +34,14 @@ application {
     mainClass = "com.billing.ApplicationKt"
 }
 java {
-    sourceCompatibility = JavaVersion.toVersion("21")
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
 
+kotlin {
+    jvmToolchain(21)
+}
 
 graalvmNative.toolchainDetection = false
 
