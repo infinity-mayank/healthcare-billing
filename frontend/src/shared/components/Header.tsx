@@ -1,16 +1,37 @@
 import React from 'react';
+import { Box, Typography } from '@mui/material';
 import { BiHealth } from "react-icons/bi";
-import { APP_CONFIG } from "../../constants";
+import { APP_LABELS } from "../../constants";
 
 export const Header = (): React.ReactNode => {
     return (
-        <header className="text-center mb-12">
-            <div className="inline-flex items-center gap-3 mb-2">
+        <Box
+            component="header"
+            sx={{
+                textAlign: 'center',
+                mb: 6
+            }}
+        >
+            <Box
+                sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    mb: 1
+                }}
+            >
                 <BiHealth size={40} />
-                <h1 className="text-3xl font-bold text-white">
-                    {APP_CONFIG.APP_TITLE}
-                </h1>
-            </div>
-        </header>
+                <Typography
+                    variant="h3"
+                    component="h1"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: 'white'
+                    }}
+                >
+                    {APP_LABELS.TITLE}
+                </Typography>
+            </Box>
+        </Box>
     );
 };

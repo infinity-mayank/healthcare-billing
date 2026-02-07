@@ -1,12 +1,29 @@
 import { type ReactNode } from 'react';
-import { Header } from "../shared/components/Header.tsx";
+import { Box } from '@mui/material';
 
-export const MainLayout = (): ReactNode => {
+interface MainLayoutProps {
+    children: ReactNode;
+}
+
+export const MainLayout = ({ children }: MainLayoutProps): ReactNode => {
     return (
-        <div className="h-full w-full bg-teal-800 overflow-auto">
-            <div className="min-h-full w-full p-4 md:p-8">
-                <Header />
-            </div>
-        </div>
+        <Box
+            sx={{
+                height: '100%',
+                width: '100%',
+                bgcolor: 'teal.800',
+                overflow: 'auto'
+            }}
+        >
+            <Box
+                sx={{
+                    minHeight: '100%',
+                    width: '100%',
+                    p: { xs: 2, md: 4 }
+                }}
+            >
+                {children}
+            </Box>
+        </Box>
     );
 };
