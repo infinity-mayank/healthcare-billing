@@ -21,7 +21,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { patientAPI } from "./patientApi.ts";
-import {PATIENT_LABELS} from "../../constants";
+import { EMPTY_STRING, PATIENT_LABELS } from "../../constants";
 
 interface PatientModalProps {
     isOpen: boolean;
@@ -44,18 +44,36 @@ const stripTime = (date: Date): Date => {
 
 const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.ReactNode => {
     const [formData, setFormData] = useState<PatientFormData>({
-        firstName: '',
-        lastName: '',
-        dateOfBirth: '',
-        insuranceBIN: '',
-        insurancePCN: '',
-        insuranceMemberID: '',
+        firstName: EMPTY_STRING,
+        lastName: EMPTY_STRING,
+        dateOfBirth: EMPTY_STRING,
+        insuranceBIN: EMPTY_STRING,
+        insurancePCN: EMPTY_STRING,
+        insuranceMemberID: EMPTY_STRING,
     });
 
     const [dobDate, setDobDate] = useState<Date | null>(null);
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const resetForm = () => {
+        setFormData({
+            firstName: EMPTY_STRING,
+            lastName: EMPTY_STRING,
+            dateOfBirth: EMPTY_STRING,
+            insuranceBIN: EMPTY_STRING,
+            insurancePCN: EMPTY_STRING,
+            insuranceMemberID: EMPTY_STRING,
+        });
+        setDobDate(null);
+        setErrors({});
+    };
+
+    const handleClose = () => {
+        resetForm();
+        onClose();
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -72,7 +90,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
 
         setFormData(prev => ({
             ...prev,
-            dateOfBirth: value ? formatMMDDYYYY(value) : '',
+            dateOfBirth: value ? formatMMDDYYYY(value) : EMPTY_STRING,
         }));
 
         if (errors.dateOfBirth) {
@@ -125,16 +143,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
         try {
             await patientAPI.register(formData);
 
-            setFormData({
-                firstName: '',
-                lastName: '',
-                dateOfBirth: '',
-                insuranceBIN: '',
-                insurancePCN: '',
-                insuranceMemberID: '',
-            });
-            setDobDate(null);
-            setErrors({});
+            resetForm();
 
             if (onSuccess) {
                 onSuccess();
@@ -150,7 +159,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
     return (
         <Dialog
             open={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
             maxWidth="md"
             fullWidth
             slotProps={{
@@ -177,7 +186,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
                     {PATIENT_LABELS.REGISTER_PATIENT}
                 </Typography>
 
-                <IconButton onClick={onClose} size="small">
+                <IconButton onClick={handleClose} size="small">
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
@@ -273,7 +282,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
                 </DialogContent>
 
                 <DialogActions sx={{ px: 3, pb: 3, flexShrink: 0, borderTop: 1, borderColor: 'divider' }}>
-                    <Button onClick={onClose} variant="outlined" fullWidth>
+                    <Button onClick={handleClose} variant="outlined" fullWidth>
                         Cancel
                     </Button>
 

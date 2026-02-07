@@ -1,6 +1,6 @@
-import { HTTP_METHODS, type HttpMethod } from "../constants";
+import { EMPTY_STRING, HTTP_METHODS, type HttpMethod } from "../constants";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? EMPTY_STRING;
 
 const request = async <T>(
     url: string,

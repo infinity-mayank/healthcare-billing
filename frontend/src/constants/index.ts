@@ -17,3 +17,5 @@ export const HTTP_METHODS = {
 
 export type HttpMethod =
     (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS];
+
+export const EMPTY_STRING = '';
