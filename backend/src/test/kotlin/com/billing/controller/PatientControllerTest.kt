@@ -35,8 +35,8 @@ class PatientControllerTest {
             lastName = "Doe",
             dateOfBirth = "01/01/1990",
             insuranceBIN = "123456",
-            insurancePCN = "PCN001",
-            insuranceMemberID = "MID123"
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
         )
 
     @Test
@@ -65,8 +65,8 @@ class PatientControllerTest {
             "lastName" to "Doe",
             "dateOfBirth" to "01/01/1990",
             "insuranceBIN" to "123456",
-            "insurancePCN" to "PCN001",
-            "insuranceMemberID" to "MID123"
+            "insurancePCN" to "999888",
+            "insuranceMemberID" to "294287"
         )
 
         val request = HttpRequest.POST("/api/patients", invalidJson)
@@ -86,8 +86,8 @@ class PatientControllerTest {
             lastName = "Doe",
             dateOfBirth = "1990-01-01",
             insuranceBIN = "123456",
-            insurancePCN = "PCN001",
-            insuranceMemberID = "MID123"
+            insurancePCN = "999881",
+            insuranceMemberID = "1983748"
         )
 
         val request = HttpRequest.POST("/api/patients", invalidJson)

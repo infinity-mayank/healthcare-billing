@@ -21,12 +21,15 @@ data class PatientRegistrationRequest(
     val dateOfBirth: String,
 
     @field:NotBlank(message = "Insurance BIN is required")
+    @field:Pattern(regexp = "\\d+", message = "Insurance BIN must contain only numbers")
     val insuranceBIN: String,
 
     @field:NotBlank(message = "Insurance PCN is required")
+    @field:Pattern(regexp = "\\d+", message = "Insurance PCN must contain only numbers")
     val insurancePCN: String,
 
     @field:NotBlank(message = "Insurance Member ID is required")
+    @field:Pattern(regexp = "\\d+", message = "Insurance Member ID must contain only numbers")
     val insuranceMemberID: String
 ) {
     fun toPatient(id: String): Patient {

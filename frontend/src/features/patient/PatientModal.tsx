@@ -81,6 +81,11 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
+        const insuranceFields = ['insuranceBIN', 'insurancePCN', 'insuranceMemberID'];
+        if (insuranceFields.includes(name) && value && !/^\d*$/.test(value)) {
+            return;
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
 
         if (errors[name]) {
