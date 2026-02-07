@@ -5,20 +5,22 @@ import { MainLayout } from "./layouts";
 import PatientManagement from "./features/patient/PatientManagement.tsx";
 import { Header } from "./shared/components/Header.tsx";
 import BillingSection from "./features/billing/BillingSection.tsx";
-import { AppProvider } from "./providers";
+import { AppProvider, SnackbarProvider } from "./providers";
 
 export const App = (): React.ReactNode => {
   return (
       <ThemeProvider theme={theme}>
-          <AppProvider>
-              <MainLayout>
-                  <Header />
-                  <Container maxWidth="lg">
-                      <BillingSection />
-                  </Container>
-                  <PatientManagement />
-              </MainLayout>
-          </AppProvider>
+          <SnackbarProvider>
+              <AppProvider>
+                  <MainLayout>
+                      <Header />
+                      <Container maxWidth="lg">
+                          <BillingSection />
+                      </Container>
+                      <PatientManagement />
+                  </MainLayout>
+              </AppProvider>
+          </SnackbarProvider>
       </ThemeProvider>
   )
 }

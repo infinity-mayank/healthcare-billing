@@ -22,6 +22,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { patientAPI } from "./patientApi.ts";
 import { EMPTY_STRING, PATIENT_LABELS } from "../../constants";
+import { useSnackbar } from "../../hooks";
 
 interface PatientModalProps {
     isOpen: boolean;
@@ -43,6 +44,8 @@ const stripTime = (date: Date): Date => {
 };
 
 const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.ReactNode => {
+    const { showSuccess, showError } = useSnackbar();
+
     const [formData, setFormData] = useState<PatientFormData>({
         firstName: EMPTY_STRING,
         lastName: EMPTY_STRING,
@@ -143,6 +146,8 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
         try {
             await patientAPI.register(formData);
 
+            showSuccess('Patient registered successfully!');
+
             resetForm();
 
             if (onSuccess) {
@@ -151,6 +156,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
             onClose();
         } catch (error) {
             console.error('Failed to register patient:', error);
+            showError('Failed to register patient. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
