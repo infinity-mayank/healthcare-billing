@@ -21,4 +21,8 @@ open class PatientRepository {
         return savedPatient
     }
 
+    fun findAll(): List<Patient> {
+        return patients.values.toList()
+    }
+
 }

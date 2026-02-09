@@ -16,4 +16,8 @@ open class PatientService(
         return PatientResponse.fromPatient(savedPatient)
     }
 
+    fun getAllPatients(): List<PatientResponse> {
+        return patientRepository.findAll().map { PatientResponse.fromPatient(it) }
+    }
+
 }

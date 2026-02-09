@@ -2,19 +2,15 @@ package com.billing.controller
 
 import com.billing.dto.PatientRegistrationRequest
 import com.billing.dto.PatientResponse
-import com.billing.service.PatientService
-import io.micronaut.core.type.Argument
 import io.micronaut.http.*
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.mock
 
 @MicronautTest
 class PatientControllerTest {
@@ -22,12 +18,6 @@ class PatientControllerTest {
     @Inject
     @field:Client("/")
     lateinit var client: HttpClient
-
-    @Inject
-    lateinit var patientService: PatientService
-
-    @MockBean(PatientService::class)
-    fun patientService(): PatientService = mock()
 
     private fun validRequest() =
         PatientRegistrationRequest(
@@ -98,5 +88,56 @@ class PatientControllerTest {
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+    }
+
+    @Test
+    fun `should get all patients and return 200`() {
+        val patient1 = PatientRegistrationRequest(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "01/01/1990",
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+        val createRequest1 = HttpRequest.POST("/api/patients", patient1)
+            .contentType(MediaType.APPLICATION_JSON)
+        client.toBlocking().exchange(createRequest1, PatientResponse::class.java)
+
+        val patient2 = PatientRegistrationRequest(
+            firstName = "Jane",
+            lastName = "Smith",
+            dateOfBirth = "05/15/1985",
+            insuranceBIN = "654321",
+            insurancePCN = "888999",
+            insuranceMemberID = "3338282"
+        )
+        val createRequest2 = HttpRequest.POST("/api/patients", patient2)
+            .contentType(MediaType.APPLICATION_JSON)
+        client.toBlocking().exchange(createRequest2, PatientResponse::class.java)
+
+        val getRequest = HttpRequest.GET<Any>("/api/patients")
+        val response = client.toBlocking()
+            .exchange(getRequest, io.micronaut.core.type.Argument.listOf(PatientResponse::class.java))
+
+        assertEquals(HttpStatus.OK, response.status)
+
+        val patients = response.body()
+        assertNotNull(patients)
+        assertTrue(patients!!.size >= 2, "Expected at least 2 patients in the response")
+
+        val johnDoe = patients.find { it.firstName == "John" && it.lastName == "Doe" }
+        assertNotNull(johnDoe)
+        assertEquals("01/01/1990", johnDoe!!.dateOfBirth)
+        assertEquals("123456", johnDoe.insuranceBIN)
+        assertEquals("999888", johnDoe.insurancePCN)
+        assertEquals("2229838", johnDoe.insuranceMemberID)
+
+        val janeSmith = patients.find { it.firstName == "Jane" && it.lastName == "Smith" }
+        assertNotNull(janeSmith)
+        assertEquals("05/15/1985", janeSmith!!.dateOfBirth)
+        assertEquals("654321", janeSmith.insuranceBIN)
+        assertEquals("888999", janeSmith.insurancePCN)
+        assertEquals("3338282", janeSmith.insuranceMemberID)
     }
 }
