@@ -15,6 +15,10 @@ export const HTTP_METHODS = {
     DELETE: 'DELETE'
 }
 
+export const BILLING_LABELS = {
+    GENERATE_BILL: 'Generate Bill'
+}
+
 export type HttpMethod =
     (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS];
 

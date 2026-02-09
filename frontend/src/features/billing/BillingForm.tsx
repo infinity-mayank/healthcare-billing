@@ -1,7 +1,8 @@
 import React from 'react';
-import { Paper, Box, Button } from '@mui/material';
+import { Paper, Box, Button, Typography } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { PATIENT_LABELS } from "../../constants";
+import { RiBillFill } from "react-icons/ri";
+import { BILLING_LABELS, PATIENT_LABELS } from "../../constants";
 
 interface BillingFormProps {
     onOpenPatientModal: () => void;
@@ -26,7 +27,26 @@ const BillingForm = ({
                     mb: 4
                 }}
             >
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'teal.800'
+                        }}
+                    >
+                        <RiBillFill size={50} />
+                    </Box>
+
+                    <Box>
+                        <Typography variant="h5" fontWeight={700} color="teal.800">
+                            {BILLING_LABELS.GENERATE_BILL}
+                        </Typography>
+                    </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex' }}>
                     <Button
                         variant="contained"
                         onClick={onOpenPatientModal}
