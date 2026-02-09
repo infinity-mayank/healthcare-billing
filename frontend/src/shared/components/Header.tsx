@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { BiHealth } from "react-icons/bi";
 import { APP_LABELS } from "../../constants";
 
 export const Header = (): React.ReactNode => {
@@ -20,7 +19,6 @@ export const Header = (): React.ReactNode => {
                     mb: 1
                 }}
             >
-                <BiHealth size={40} />
                 <Typography
                     variant="h3"
                     component="h1"

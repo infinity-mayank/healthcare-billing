@@ -10,11 +10,4 @@ describe('Header', () => {
         const heading = screen.getByRole('heading', { level: 1 });
         expect(heading).toHaveTextContent(APP_LABELS.TITLE);
     });
-
-    it('should render the health icon', () => {
-        const { container } = render(<Header />);
-
-        const icon = container.querySelector('svg');
-        expect(icon).toBeInTheDocument();
-    });
 });

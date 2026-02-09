@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Box, Button, Typography } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { RiBillFill } from "react-icons/ri";
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import { BILLING_LABELS, PATIENT_LABELS } from "../../constants";
 
 interface BillingFormProps {
@@ -36,7 +36,7 @@ const BillingForm = ({
                             color: 'teal.800'
                         }}
                     >
-                        <RiBillFill size={50} />
+                        <ReceiptIcon fontSize="large" />
                     </Box>
 
                     <Box>
