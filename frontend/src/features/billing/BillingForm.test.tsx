@@ -1,10 +1,10 @@
+import { act } from "react";
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import BillingForm from './BillingForm';
-import { BILLING_LABELS, PATIENT_LABELS } from '../../constants';
+import { BILLING_LABELS, DOCTOR_LABELS, PATIENT_LABELS } from '../../constants';
 import { patientAPI } from '../patient/patientApi';
 import type { Patient } from '../../shared/types';
-import {act} from "react";
 
 vi.mock('../patient/patientApi');
 vi.mock('../../hooks', () => ({
@@ -14,6 +14,7 @@ vi.mock('../../hooks', () => ({
 
 describe('BillingForm', () => {
     let mockOnOpenPatientModal: () => void;
+    let mockOnOpenDoctorModal: () => void;
     const mockPatients: Patient[] = [
         {
             id: '1',
@@ -28,14 +29,21 @@ describe('BillingForm', () => {
 
     beforeEach(() => {
         mockOnOpenPatientModal = vi.fn();
+        mockOnOpenDoctorModal = vi.fn();
         vi.mocked(patientAPI.getAll).mockResolvedValue(mockPatients);
     });
 
     it('renders all UI elements correctly', async () => {
-        render(<BillingForm onOpenPatientModal={mockOnOpenPatientModal} />);
+        render(
+            <BillingForm
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
 
         expect(screen.getByText(BILLING_LABELS.GENERATE_BILL)).toBeInTheDocument();
         expect(screen.getByText(PATIENT_LABELS.NEW_PATIENT)).toBeInTheDocument();
+        expect(screen.getByText(DOCTOR_LABELS.NEW_DOCTOR)).toBeInTheDocument();
 
         await waitFor(() => {
             expect(patientAPI.getAll).toHaveBeenCalled();
@@ -45,7 +53,12 @@ describe('BillingForm', () => {
     });
 
     it('calls onOpenPatientModal when new patient button is clicked', async () => {
-        render(<BillingForm onOpenPatientModal={mockOnOpenPatientModal} />);
+        render(
+            <BillingForm
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
 
         const button = screen.getByRole('button', { name: /new patient/i });
         await act(async () => {
@@ -56,7 +69,12 @@ describe('BillingForm', () => {
     });
 
     it('loads and displays patients', async () => {
-        render(<BillingForm onOpenPatientModal={mockOnOpenPatientModal} />);
+        render(
+            <BillingForm
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
 
         await waitFor(() => {
             expect(patientAPI.getAll).toHaveBeenCalled();
@@ -68,6 +86,22 @@ describe('BillingForm', () => {
         await waitFor(() => {
             expect(screen.getByText('John Doe')).toBeInTheDocument();
         });
+    });
+
+    it('calls onOpenDoctorModal when new doctor button is clicked', async () => {
+        render(
+            <BillingForm
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
+
+        const button = screen.getByRole('button', { name: /new doctor/i });
+        await act(async () => {
+            fireEvent.click(button);
+        })
+
+        expect(mockOnOpenDoctorModal).toHaveBeenCalledTimes(1);
     });
 });
 

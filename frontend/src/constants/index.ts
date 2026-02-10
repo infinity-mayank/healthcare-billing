@@ -9,6 +9,12 @@ export const PATIENT_LABELS = {
     SELECT_PATIENT: 'Select Patient',
 }
 
+export const DOCTOR_LABELS = {
+    NEW_DOCTOR: 'New Doctor',
+    REGISTER_DOCTOR: 'Register Doctor',
+    REGISTERING_DOCTOR: 'Registering Doctor...',
+}
+
 export const HTTP_METHODS = {
     GET: 'GET',
     POST: 'POST',

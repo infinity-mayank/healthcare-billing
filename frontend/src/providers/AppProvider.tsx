@@ -9,6 +9,7 @@ interface AppProviderProps {
 
 export const AppProvider = ({ children }: AppProviderProps): ReactNode => {
     const patientModal = useModal();
+    const doctorModal = useModal();
     const [patientsTrigger, setPatientsTrigger] = useState(0);
 
     const triggerPatientsReload = () => {
@@ -20,6 +21,11 @@ export const AppProvider = ({ children }: AppProviderProps): ReactNode => {
             isOpen: patientModal.isOpen,
             open: patientModal.open,
             close: patientModal.close,
+        },
+        doctorModal: {
+            isOpen: doctorModal.isOpen,
+            open: doctorModal.open,
+            close: doctorModal.close
         },
         refreshCounter: patientsTrigger,
         refreshData: triggerPatientsReload,

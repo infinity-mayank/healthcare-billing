@@ -20,3 +20,13 @@ export interface Patient {
     insurancePCN: string;
     insuranceMemberID: string;
 }
+
+export type Specialty = 'ORTHO' | 'CARDIO';
+
+export interface DoctorFormData {
+    firstName: string;
+    lastName: string;
+    npiNumber: string;
+    specialty: Specialty | '';
+    practiceStartDate: string;
+}

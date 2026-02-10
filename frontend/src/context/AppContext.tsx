@@ -6,6 +6,11 @@ export interface AppContextValue {
         open: () => void;
         close: () => void;
     };
+    doctorModal: {
+        isOpen: boolean;
+        open: () => void;
+        close: () => void;
+    }
     refreshCounter: number;
     refreshData: () => void;
 }

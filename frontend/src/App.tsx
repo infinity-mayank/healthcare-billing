@@ -6,6 +6,7 @@ import PatientManagement from "./features/patient/PatientManagement.tsx";
 import { Header } from "./shared/components/Header.tsx";
 import BillingSection from "./features/billing/BillingSection.tsx";
 import { AppProvider, SnackbarProvider } from "./providers";
+import DoctorManagement from "./features/doctor/DoctorManagement.tsx";
 
 export const App = (): React.ReactNode => {
   return (
@@ -18,6 +19,7 @@ export const App = (): React.ReactNode => {
                           <BillingSection />
                       </Container>
                       <PatientManagement />
+                      <DoctorManagement />
                   </MainLayout>
               </AppProvider>
           </SnackbarProvider>

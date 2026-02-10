@@ -12,17 +12,19 @@ import {
 import Grid from '@mui/material/Grid';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-import { BILLING_LABELS, PATIENT_LABELS } from "../../constants";
+import { BILLING_LABELS, DOCTOR_LABELS, PATIENT_LABELS } from "../../constants";
 import type { Patient } from "../../shared/types.ts";
 import { patientAPI } from "../patient/patientApi.ts";
 import { useSnackbar, useApp } from "../../hooks";
 
 interface BillingFormProps {
     onOpenPatientModal: () => void;
+    onOpenDoctorModal: () => void;
 }
 
 const BillingForm = ({
     onOpenPatientModal,
+    onOpenDoctorModal
 }: BillingFormProps): React.ReactNode => {
     const { refreshCounter } = useApp();
     const [patients, setPatients] = useState<Patient[]>([]);
@@ -82,7 +84,7 @@ const BillingForm = ({
                     </Box>
                 </Box>
 
-                <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <Button
                         variant="contained"
                         onClick={onOpenPatientModal}
@@ -101,6 +103,25 @@ const BillingForm = ({
                         }}
                     >
                         {PATIENT_LABELS.NEW_PATIENT}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={onOpenDoctorModal}
+                        startIcon={<PersonAddIcon />}
+                        sx={{
+                            bgcolor: 'teal.main',
+                            '&:hover': {
+                                bgcolor: 'teal.dark',
+                                boxShadow: 3
+                            },
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            px: 2,
+                            py: 1
+                        }}
+                    >
+                        {DOCTOR_LABELS.NEW_DOCTOR}
                     </Button>
                 </Box>
             </Box>

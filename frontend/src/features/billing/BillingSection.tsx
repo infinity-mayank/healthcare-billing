@@ -1,13 +1,14 @@
 import React from 'react';
 import BillingForm from './BillingForm';
-import { useApp } from "../../hooks/useApp.ts";
+import { useApp } from "../../hooks";
 
-const BillingSection: React.FC = () => {
-    const { patientModal } = useApp();
+const BillingSection = (): React.ReactNode => {
+    const { patientModal, doctorModal } = useApp();
 
     return (
         <BillingForm
             onOpenPatientModal={patientModal.open}
+            onOpenDoctorModal={doctorModal.open}
         />
     );
 };
