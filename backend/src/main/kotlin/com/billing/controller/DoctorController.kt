@@ -15,7 +15,7 @@ open class DoctorController(
 ) {
 
     @Post
-    open fun registerPatient(@Body @Valid request: DoctorRegistrationRequest): HttpResponse<DoctorResponse> {
+    open fun registerDoctor(@Body @Valid request: DoctorRegistrationRequest): HttpResponse<DoctorResponse> {
         val response = doctorService.registerDoctor(request)
         return HttpResponse.created(response)
     }
