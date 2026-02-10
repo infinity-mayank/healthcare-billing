@@ -13,4 +13,8 @@ open class DoctorRepository {
         doctors[doctor.npiNumber] = doctor
         return doctor
     }
+
+    fun findAll(): List<Doctor> {
+        return doctors.values.toList()
+    }
 }

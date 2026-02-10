@@ -6,6 +6,7 @@ import com.billing.service.DoctorService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import jakarta.validation.Valid
 
@@ -18,5 +19,11 @@ open class DoctorController(
     open fun registerDoctor(@Body @Valid request: DoctorRegistrationRequest): HttpResponse<DoctorResponse> {
         val response = doctorService.registerDoctor(request)
         return HttpResponse.created(response)
+    }
+
+    @Get
+    open fun getAllDoctors(): HttpResponse<List<DoctorResponse>> {
+        val doctors = doctorService.getAllDoctors()
+        return HttpResponse.ok(doctors)
     }
 }

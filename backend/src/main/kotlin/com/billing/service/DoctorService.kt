@@ -15,4 +15,8 @@ open class DoctorService(
         val savedDoctor = doctorRepository.save(doctor)
         return DoctorResponse.fromDoctor(savedDoctor)
     }
+
+    fun getAllDoctors(): List<DoctorResponse> {
+        return doctorRepository.findAll().map { DoctorResponse.fromDoctor(it) }
+    }
 }

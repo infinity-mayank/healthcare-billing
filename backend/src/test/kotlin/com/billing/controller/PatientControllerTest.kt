@@ -2,6 +2,7 @@ package com.billing.controller
 
 import com.billing.dto.PatientRegistrationRequest
 import com.billing.dto.PatientResponse
+import io.micronaut.core.type.Argument
 import io.micronaut.http.*
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
@@ -118,7 +119,7 @@ class PatientControllerTest {
 
         val getRequest = HttpRequest.GET<Any>("/api/patients")
         val response = client.toBlocking()
-            .exchange(getRequest, io.micronaut.core.type.Argument.listOf(PatientResponse::class.java))
+            .exchange(getRequest, Argument.listOf(PatientResponse::class.java))
 
         assertEquals(HttpStatus.OK, response.status)
 
