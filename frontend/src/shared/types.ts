@@ -10,3 +10,13 @@ export interface PatientFormData {
 export interface FormErrors {
     [key: string]: string | null | undefined;
 }
+
+export interface Patient {
+    id: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    insuranceBIN: string;
+    insurancePCN: string;
+    insuranceMemberID: string;
+}

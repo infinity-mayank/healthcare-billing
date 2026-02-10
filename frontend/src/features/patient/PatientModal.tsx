@@ -27,7 +27,7 @@ import { useSnackbar } from "../../hooks";
 interface PatientModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess?: () => void;
+    onSuccess: () => void;
 }
 
 const formatMMDDYYYY = (date: Date): string => {

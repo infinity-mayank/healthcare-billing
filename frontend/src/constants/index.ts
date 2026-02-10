@@ -6,6 +6,7 @@ export const PATIENT_LABELS = {
     NEW_PATIENT: 'New Patient',
     REGISTER_PATIENT: 'Register Patient',
     REGISTERING_PATIENT: 'Registering Patient...',
+    SELECT_PATIENT: 'Select Patient',
 }
 
 export const HTTP_METHODS = {

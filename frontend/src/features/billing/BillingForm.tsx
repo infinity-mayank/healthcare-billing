@@ -1,8 +1,21 @@
-import React from 'react';
-import { Paper, Box, Button, Typography } from '@mui/material';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+    Paper,
+    Box,
+    Button,
+    Typography,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Select
+} from '@mui/material';
+import Grid from '@mui/material/Grid';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import { BILLING_LABELS, PATIENT_LABELS } from "../../constants";
+import type { Patient } from "../../shared/types.ts";
+import { patientAPI } from "../patient/patientApi.ts";
+import { useSnackbar, useApp } from "../../hooks";
 
 interface BillingFormProps {
     onOpenPatientModal: () => void;
@@ -11,6 +24,29 @@ interface BillingFormProps {
 const BillingForm = ({
     onOpenPatientModal,
 }: BillingFormProps): React.ReactNode => {
+    const { refreshCounter } = useApp();
+    const [patients, setPatients] = useState<Patient[]>([]);
+    const [selectedPatientId, setSelectedPatientId] = useState('');
+    const { showError } = useSnackbar();
+
+    const loadPatients = useCallback(async () => {
+        try {
+            const patients: Patient[] = await patientAPI.getAll() ?? [];
+            setPatients(patients);
+        } catch (error) {
+            console.error('Failed to load patients:', error);
+            showError('Failed to load patients. Please try again.');
+        }
+    }, [showError]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            await loadPatients();
+        }
+
+        loadData();
+    }, [loadPatients, refreshCounter]);
+
     return (
         <Paper
             elevation={3}
@@ -68,6 +104,31 @@ const BillingForm = ({
                     </Button>
                 </Box>
             </Box>
+            <Box component="form">
+                <Grid
+                    sx={{
+                        display: 'grid'
+                    }}
+                >
+                    <FormControl fullWidth required>
+                        <InputLabel id="patient-label">{PATIENT_LABELS.SELECT_PATIENT}</InputLabel>
+                        <Select
+                            labelId="patient-label"
+                            id="patient"
+                            value={selectedPatientId}
+                            onChange={(e) => setSelectedPatientId(e.target.value)}
+                            label="Select Patient"
+                        >
+                            {patients.map((patient) => (
+                                <MenuItem key={patient.id} value={patient.id}>
+                                    {patient.firstName} {patient.lastName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+            </Box>
+
         </Paper>
     );
 };

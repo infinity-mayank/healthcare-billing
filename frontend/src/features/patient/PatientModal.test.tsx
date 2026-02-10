@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import PatientModal from './PatientModal';
 import { patientAPI } from './patientApi';
+import { useSnackbar } from '../../hooks';
 
 vi.mock('./patientApi', () => ({
     patientAPI: {
@@ -9,24 +11,35 @@ vi.mock('./patientApi', () => ({
     },
 }));
 
+vi.mock('../../hooks', () => ({
+    useSnackbar: vi.fn(),
+}));
+
 const mockRegister = patientAPI.register as Mock;
+const mockUseSnackbar = useSnackbar as Mock;
 
 describe('PatientModal', () => {
     const mockOnClose = vi.fn();
     const mockOnSuccess = vi.fn();
+    const mockShowSuccess = vi.fn();
+    const mockShowError = vi.fn();
 
     beforeEach(() => {
         vi.clearAllMocks();
+        mockUseSnackbar.mockReturnValue({
+            showSuccess: mockShowSuccess,
+            showError: mockShowError,
+        });
     });
 
     it('does not render modal when closed', () => {
-        render(<PatientModal isOpen={false} onClose={mockOnClose} />);
+        render(<PatientModal isOpen={false} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
         expect(screen.queryByText('Register Patient')).not.toBeInTheDocument();
     });
 
     it('renders modal when open', () => {
-        render(<PatientModal isOpen={true} onClose={mockOnClose} />);
+        render(<PatientModal isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
         expect(screen.getAllByText(/Register Patient/i)[0]).toBeInTheDocument();
         expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
@@ -40,7 +53,7 @@ describe('PatientModal', () => {
     });
 
     it('call onClose when cancel button is clicked', () => {
-        render(<PatientModal isOpen={true} onClose={mockOnClose} />);
+        render(<PatientModal isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess}/>);
 
         const cancelButton = screen.getByRole('button', { name: /Cancel/i });
         fireEvent.click(cancelButton);
@@ -50,7 +63,7 @@ describe('PatientModal', () => {
     });
 
     it('call onClose when close icon is clicked', () => {
-        render(<PatientModal isOpen={true} onClose={mockOnClose} />);
+        render(<PatientModal isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
         const closeButton = screen.getByRole('button', { name: '' });
         fireEvent.click(closeButton);
@@ -60,7 +73,7 @@ describe('PatientModal', () => {
     });
 
     it('update form fields on user input', () => {
-        render(<PatientModal isOpen={true} onClose={mockOnClose} />);
+        render(<PatientModal isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
         const firstNameInput = screen.getByLabelText(/First Name/i) as HTMLInputElement;
         const lastNameInput = screen.getByLabelText(/Last Name/i) as HTMLInputElement;
@@ -73,7 +86,7 @@ describe('PatientModal', () => {
     });
 
     it('show validation errors when submitting empty form', async () => {
-        render(<PatientModal isOpen={true} onClose={mockOnClose} />);
+        render(<PatientModal isOpen={true} onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
         const submitButton = screen.getByRole('button', { name: /Register Patient/i });
         fireEvent.click(submitButton);
@@ -98,8 +111,8 @@ describe('PatientModal', () => {
         fireEvent.change(screen.getByLabelText(/First Name/i), { target: { value: 'John' } });
         fireEvent.change(screen.getByLabelText(/Last Name/i), { target: { value: 'Doe' } });
         fireEvent.change(screen.getByLabelText(/BIN Number/i), { target: { value: '123456' } });
-        fireEvent.change(screen.getByLabelText(/PCN Number/i), { target: { value: 'PCN123' } });
-        fireEvent.change(screen.getByLabelText(/Member ID/i), { target: { value: 'MEM123' } });
+        fireEvent.change(screen.getByLabelText(/PCN Number/i), { target: { value: '328743' } });
+        fireEvent.change(screen.getByLabelText(/Member ID/i), { target: { value: '943732' } });
 
         const dobInput = screen.getByLabelText(/date of birth/i, {
             selector: 'input',
@@ -115,8 +128,8 @@ describe('PatientModal', () => {
                 lastName: 'Doe',
                 dateOfBirth: expect.any(String),
                 insuranceBIN: '123456',
-                insurancePCN: 'PCN123',
-                insuranceMemberID: 'MEM123',
+                insurancePCN: '328743',
+                insuranceMemberID: '943732',
             });
             expect(mockOnSuccess).toHaveBeenCalled();
             expect(mockOnClose).toHaveBeenCalled();
