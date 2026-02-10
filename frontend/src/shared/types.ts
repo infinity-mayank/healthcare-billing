@@ -30,3 +30,12 @@ export interface DoctorFormData {
     specialty: Specialty | '';
     practiceStartDate: string;
 }
+
+export interface Doctor {
+    npiNumber: string;
+    firstName: string;
+    lastName: string;
+    specialty: Specialty;
+    practiceStartDate: string;
+    yearsOfExperience: number;
+}

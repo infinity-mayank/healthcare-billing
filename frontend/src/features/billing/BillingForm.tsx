@@ -13,9 +13,10 @@ import Grid from '@mui/material/Grid';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import { BILLING_LABELS, DOCTOR_LABELS, PATIENT_LABELS } from "../../constants";
-import type { Patient } from "../../shared/types.ts";
+import type { Doctor, Patient } from "../../shared/types.ts";
 import { patientAPI } from "../patient/patientApi.ts";
 import { useSnackbar, useApp } from "../../hooks";
+import { doctorAPI } from "../doctor/doctorApi.ts";
 
 interface BillingFormProps {
     onOpenPatientModal: () => void;
@@ -28,7 +29,9 @@ const BillingForm = ({
 }: BillingFormProps): React.ReactNode => {
     const { refreshCounter } = useApp();
     const [patients, setPatients] = useState<Patient[]>([]);
+    const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [selectedPatientId, setSelectedPatientId] = useState('');
+    const [selectedDoctorId, setSelectedDoctorId] = useState('');
     const { showError } = useSnackbar();
 
     const loadPatients = useCallback(async () => {
@@ -41,13 +44,24 @@ const BillingForm = ({
         }
     }, [showError]);
 
+    const loadDoctors = useCallback(async () => {
+        try {
+            const doctors: Doctor[] = await doctorAPI.getAll() ?? [];
+            setDoctors(doctors);
+        } catch (error) {
+            console.error('Failed to load doctors:', error);
+            showError('Failed to load doctors. Please try again.');
+        }
+    }, [showError]);
+
     useEffect(() => {
         const loadData = async () => {
             await loadPatients();
+            await loadDoctors();
         }
 
         loadData();
-    }, [loadPatients, refreshCounter]);
+    }, [loadPatients, refreshCounter, loadDoctors]);
 
     return (
         <Paper
@@ -126,11 +140,7 @@ const BillingForm = ({
                 </Box>
             </Box>
             <Box component="form">
-                <Grid
-                    sx={{
-                        display: 'grid'
-                    }}
-                >
+                <Grid sx={{ display: 'flex', gap: 2 }}>
                     <FormControl fullWidth required>
                         <InputLabel id="patient-label">{PATIENT_LABELS.SELECT_PATIENT}</InputLabel>
                         <Select
@@ -143,6 +153,22 @@ const BillingForm = ({
                             {patients.map((patient) => (
                                 <MenuItem key={patient.id} value={patient.id}>
                                     {patient.firstName} {patient.lastName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth required>
+                        <InputLabel id="doctor-label">{DOCTOR_LABELS.SELECT_DOCTOR}</InputLabel>
+                        <Select
+                            labelId="doctor-label"
+                            id="doctor"
+                            value={selectedDoctorId}
+                            onChange={(e) => setSelectedDoctorId(e.target.value)}
+                            label="Select Doctor"
+                        >
+                            {doctors.map((doctor) => (
+                                <MenuItem key={doctor.npiNumber} value={doctor.npiNumber}>
+                                    {doctor.firstName} {doctor.lastName} - {doctor.specialty}
                                 </MenuItem>
                             ))}
                         </Select>

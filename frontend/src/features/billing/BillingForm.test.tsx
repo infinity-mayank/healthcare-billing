@@ -4,9 +4,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import BillingForm from './BillingForm';
 import { BILLING_LABELS, DOCTOR_LABELS, PATIENT_LABELS } from '../../constants';
 import { patientAPI } from '../patient/patientApi';
-import type { Patient } from '../../shared/types';
+import type { Doctor, Patient } from '../../shared/types';
+import { doctorAPI } from "../doctor/doctorApi.ts";
 
 vi.mock('../patient/patientApi');
+vi.mock('../doctor/doctorApi');
 vi.mock('../../hooks', () => ({
     useSnackbar: () => ({ showError: vi.fn() }),
     useApp: () => ({ refreshCounter: 0 })
@@ -26,11 +28,22 @@ describe('BillingForm', () => {
             insuranceMemberID: 'MEM123'
         }
     ];
+    const mockDoctors: Doctor[] = [
+        {
+            npiNumber: '1234567890',
+            firstName: 'Jolly',
+            lastName: 'Rancho',
+            specialty: 'ORTHO',
+            practiceStartDate: '2010-01-01',
+            yearsOfExperience: 14
+        }
+    ];
 
     beforeEach(() => {
         mockOnOpenPatientModal = vi.fn();
         mockOnOpenDoctorModal = vi.fn();
         vi.mocked(patientAPI.getAll).mockResolvedValue(mockPatients);
+        vi.mocked(doctorAPI.getAll).mockResolvedValue(mockDoctors);
     });
 
     it('renders all UI elements correctly', async () => {
@@ -80,7 +93,9 @@ describe('BillingForm', () => {
             expect(patientAPI.getAll).toHaveBeenCalled();
         });
 
-        const select = screen.getByRole('combobox');
+        const select = screen.getByRole('combobox', {
+            name: /select patient/i
+        });
         fireEvent.mouseDown(select);
 
         await waitFor(() => {
@@ -102,6 +117,28 @@ describe('BillingForm', () => {
         })
 
         expect(mockOnOpenDoctorModal).toHaveBeenCalledTimes(1);
+    });
+
+    it('loads and displays doctors', async () => {
+        render(
+            <BillingForm
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
+
+        await waitFor(() => {
+            expect(doctorAPI.getAll).toHaveBeenCalled();
+        });
+
+        const select = screen.getByRole('combobox', {
+            name: /select doctor/i
+        });
+        fireEvent.mouseDown(select);
+
+        await waitFor(() => {
+            expect(screen.getByText('Jolly Rancho - ORTHO')).toBeInTheDocument();
+        });
     });
 });
 

@@ -13,6 +13,7 @@ export const DOCTOR_LABELS = {
     NEW_DOCTOR: 'New Doctor',
     REGISTER_DOCTOR: 'Register Doctor',
     REGISTERING_DOCTOR: 'Registering Doctor...',
+    SELECT_DOCTOR: 'Select Doctor',
 }
 
 export const HTTP_METHODS = {
