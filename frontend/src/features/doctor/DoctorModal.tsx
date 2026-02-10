@@ -28,6 +28,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { doctorAPI } from "./doctorApi.ts";
 import { DOCTOR_LABELS, EMPTY_STRING } from "../../constants";
 import { useSnackbar } from "../../hooks";
+import { format } from 'date-fns';
 
 const SPECIALTY_OPTIONS: { label: string; value: Specialty }[] = [
     { label: 'Orthopedics', value: 'ORTHO' },
@@ -39,19 +40,6 @@ interface DoctorModalProps {
     onClose: () => void;
     onSuccess: () => void;
 }
-
-const formatMMDDYYYY = (date: Date): string => {
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const yyyy = String(date.getFullYear());
-    return `${mm}/${dd}/${yyyy}`;
-};
-
-const stripTime = (date: Date): Date => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d;
-};
 
 const DoctorModal = ({
     isOpen,
@@ -114,7 +102,7 @@ const DoctorModal = ({
 
         setFormData(prev => ({
             ...prev,
-            practiceStartDate: value ? formatMMDDYYYY(value) : EMPTY_STRING,
+            practiceStartDate: value ? format(value, 'MM/dd/yyyy') : EMPTY_STRING,
         }));
 
         if (errors.practiceStartDate) {
@@ -135,8 +123,8 @@ const DoctorModal = ({
         if (practiceStartDateError) {
             newErrors.practiceStartDate = practiceStartDateError;
         } else if (practiceStartDate) {
-            const picked = stripTime(practiceStartDate);
-            const today = stripTime(new Date());
+            const picked = practiceStartDate;
+            const today = new Date();
             if (picked > today) {
                 newErrors.practiceStartDate = "Practice start date can't be in the future";
             }

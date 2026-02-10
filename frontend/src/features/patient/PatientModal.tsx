@@ -23,25 +23,13 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { patientAPI } from "./patientApi.ts";
 import { EMPTY_STRING, PATIENT_LABELS } from "../../constants";
 import { useSnackbar } from "../../hooks";
+import { format } from 'date-fns';
 
 interface PatientModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
 }
-
-const formatMMDDYYYY = (date: Date): string => {
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const yyyy = String(date.getFullYear());
-    return `${mm}/${dd}/${yyyy}`;
-};
-
-const stripTime = (date: Date): Date => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d;
-};
 
 const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.ReactNode => {
     const { showSuccess, showError } = useSnackbar();
@@ -98,7 +86,7 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
 
         setFormData(prev => ({
             ...prev,
-            dateOfBirth: value ? formatMMDDYYYY(value) : EMPTY_STRING,
+            dateOfBirth: value ? format(value, 'MM/dd/yyyy') : EMPTY_STRING,
         }));
 
         if (errors.dateOfBirth) {
@@ -119,8 +107,8 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
         if (dobError) {
             newErrors.dateOfBirth = dobError;
         } else if (dobDate) {
-            const picked = stripTime(dobDate);
-            const today = stripTime(new Date());
+            const picked = dobDate;
+            const today = new Date();
             if (picked > today) {
                 newErrors.dateOfBirth = "Date of birth can't be in the future";
             }
