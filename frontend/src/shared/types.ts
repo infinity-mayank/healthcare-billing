@@ -39,3 +39,15 @@ export interface Doctor {
     practiceStartDate: string;
     yearsOfExperience: number;
 }
+
+export interface Bill {
+    patientId: string;
+    doctorNpiNumber: string;
+    consultationFee: number;
+    taxAmount: number;
+    totalAmount: number;
+    coPayAmount: number;
+    insurancePayableAmount: number;
+    taxRatePercentage: number;
+    coPayRatePercentage: number;
+}

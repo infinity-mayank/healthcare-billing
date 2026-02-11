@@ -24,7 +24,13 @@ export const HTTP_METHODS = {
 }
 
 export const BILLING_LABELS = {
-    GENERATE_BILL: 'Generate Bill'
+    GENERATE_BILL: 'Generate Bill',
+    BILL_BREAKDOWN: 'Bill Breakdown',
+    CONSULTATION_FEE: 'Consultation Fee',
+    GST: 'GST',
+    SUBTOTAL: 'Subtotal',
+    INSURANCE_COVERAGE: 'Insurance Coverage',
+    CO_PAY: 'Co-Pay',
 }
 
 export type HttpMethod =

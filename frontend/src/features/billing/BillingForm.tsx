@@ -7,16 +7,20 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
-    Select
+    Select,
+    Stack,
+    Divider
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import { BILLING_LABELS, DOCTOR_LABELS, PATIENT_LABELS } from "../../constants";
-import type { Doctor, Patient } from "../../shared/types.ts";
+import type { Bill, Doctor, Patient } from "../../shared/types.ts";
 import { patientAPI } from "../patient/patientApi.ts";
 import { useSnackbar, useApp } from "../../hooks";
 import { doctorAPI } from "../doctor/doctorApi.ts";
+import { formatCurrency } from "../../utils/helpers.ts";
+import { billingAPI } from "./billingApi.ts";
 
 interface BillingFormProps {
     onOpenPatientModal: () => void;
@@ -30,6 +34,7 @@ const BillingForm = ({
     const { refreshCounter } = useApp();
     const [patients, setPatients] = useState<Patient[]>([]);
     const [doctors, setDoctors] = useState<Doctor[]>([]);
+    const [bill, setBill] = useState<Bill | null>(null);
     const [selectedPatientId, setSelectedPatientId] = useState('');
     const [selectedDoctorId, setSelectedDoctorId] = useState('');
     const { showError } = useSnackbar();
@@ -62,6 +67,28 @@ const BillingForm = ({
 
         loadData();
     }, [loadPatients, refreshCounter, loadDoctors]);
+
+    const generateBill = useCallback(async () => {
+        try {
+            const bill: Bill = await billingAPI.generateBill(selectedDoctorId, selectedPatientId);
+            setBill(bill);
+        } catch (error) {
+            console.error('Failed to generate bill:', error);
+            showError('Failed to generate bill. Please try again.');
+        }
+    }, [selectedPatientId, selectedDoctorId, showError]);
+
+    useEffect(() => {
+        const loadBillData = async () => {
+            if (selectedPatientId && selectedDoctorId) {
+                await generateBill();
+            }
+        }
+
+        loadBillData();
+    }, [selectedDoctorId, selectedPatientId, generateBill]);
+
+
 
     return (
         <Paper
@@ -175,6 +202,71 @@ const BillingForm = ({
                     </FormControl>
                 </Grid>
             </Box>
+
+            {bill && (
+                <Paper
+                    sx={{
+                        p: 3,
+                        border: '1px solid',
+                        borderColor: 'teal.800',
+                        borderRadius: 3,
+                        mt: 4
+                    }}
+                >
+                    <Typography fontWeight={700} fontSize={20} mb={2}>
+                        {BILLING_LABELS.BILL_BREAKDOWN}
+                    </Typography>
+
+                    <Stack spacing={1.5}>
+                        <Stack direction="row" justifyContent="space-between">
+                            <Typography color="text.secondary">
+                                {BILLING_LABELS.CONSULTATION_FEE}
+                            </Typography>
+                            <Typography fontWeight={600}>
+                                {formatCurrency(bill.consultationFee)}
+                            </Typography>
+                        </Stack>
+
+                        <Stack direction="row" justifyContent="space-between">
+                            <Typography color="text.secondary">
+                                {BILLING_LABELS.GST} ({bill.taxRatePercentage}%)
+                            </Typography>
+                            <Typography fontWeight={600}>
+                                {formatCurrency(bill.taxAmount)}
+                            </Typography>
+                        </Stack>
+
+                        <Divider />
+
+                        <Stack direction="row" justifyContent="space-between">
+                            <Typography color="text.secondary">
+                                {BILLING_LABELS.SUBTOTAL}
+                            </Typography>
+                            <Typography fontWeight={600}>
+                                {formatCurrency(bill.totalAmount)}
+                            </Typography>
+                        </Stack>
+
+                        <Stack direction="row" justifyContent="space-between">
+                            <Typography color="text.secondary">
+                                {BILLING_LABELS.INSURANCE_COVERAGE}
+                            </Typography>
+                            <Typography fontWeight={600} color="info.main">
+                                -{formatCurrency(bill.insurancePayableAmount)}
+                            </Typography>
+                        </Stack>
+
+                        <Stack direction="row" justifyContent="space-between">
+                            <Typography color="text.secondary">
+                                {BILLING_LABELS.CO_PAY} ({bill.coPayRatePercentage}%)
+                            </Typography>
+                            <Typography fontWeight={600}>
+                                {formatCurrency(bill.coPayAmount)}
+                            </Typography>
+                        </Stack>
+                    </Stack>
+                </Paper>
+            )}
 
         </Paper>
     );

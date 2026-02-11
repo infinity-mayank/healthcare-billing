@@ -4,11 +4,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import BillingForm from './BillingForm';
 import { BILLING_LABELS, DOCTOR_LABELS, PATIENT_LABELS } from '../../constants';
 import { patientAPI } from '../patient/patientApi';
-import type { Doctor, Patient } from '../../shared/types';
+import type { Bill, Doctor, Patient } from '../../shared/types';
 import { doctorAPI } from "../doctor/doctorApi.ts";
+import { billingAPI } from "./billingApi.ts";
 
 vi.mock('../patient/patientApi');
 vi.mock('../doctor/doctorApi');
+vi.mock('./billingApi');
 vi.mock('../../hooks', () => ({
     useSnackbar: () => ({ showError: vi.fn() }),
     useApp: () => ({ refreshCounter: 0 })
@@ -138,6 +140,67 @@ describe('BillingForm', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Jolly Rancho - ORTHO')).toBeInTheDocument();
+        });
+    });
+
+    it('displays bill breakdown when patient and doctor are selected', async () => {
+        const mockBill: Bill = {
+            patientId: '1',
+            doctorNpiNumber: '1234567890',
+            consultationFee: 1000.0,
+            taxAmount: 120.0,
+            totalAmount: 1120.0,
+            coPayAmount: 112.0,
+            insurancePayableAmount: 1008.0,
+            taxRatePercentage: 12.0,
+            coPayRatePercentage: 10.0
+        };
+
+        vi.mocked(billingAPI.generateBill).mockResolvedValue(mockBill);
+
+        render(
+            <BillingForm
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
+
+        await waitFor(() => {
+            expect(patientAPI.getAll).toHaveBeenCalled();
+            expect(doctorAPI.getAll).toHaveBeenCalled();
+        });
+
+        const patientSelect = screen.getByRole('combobox', { name: /select patient/i });
+        const doctorSelect = screen.getByRole('combobox', { name: /select doctor/i });
+
+        await act(async () => {
+            fireEvent.mouseDown(patientSelect);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByText('John Doe'));
+        });
+
+        await act(async () => {
+            fireEvent.mouseDown(doctorSelect);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByText('Jolly Rancho - ORTHO'));
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText(BILLING_LABELS.BILL_BREAKDOWN)).toBeInTheDocument();
+            expect(screen.getByText(BILLING_LABELS.CONSULTATION_FEE)).toBeInTheDocument();
+            expect(screen.getByText('$1,000.00')).toBeInTheDocument();
+            expect(screen.getByText(`${BILLING_LABELS.GST} (${mockBill.taxRatePercentage}%)`)).toBeInTheDocument();
+            expect(screen.getByText('$120.00')).toBeInTheDocument();
+            expect(screen.getByText(BILLING_LABELS.SUBTOTAL)).toBeInTheDocument();
+            expect(screen.getByText('$1,120.00')).toBeInTheDocument();
+            expect(screen.getByText(BILLING_LABELS.INSURANCE_COVERAGE)).toBeInTheDocument();
+            expect(screen.getByText('-$1,008.00')).toBeInTheDocument();
+            expect(screen.getByText(`${BILLING_LABELS.CO_PAY} (${mockBill.coPayRatePercentage}%)`)).toBeInTheDocument();
+            expect(screen.getByText('$112.00')).toBeInTheDocument();
         });
     });
 });
