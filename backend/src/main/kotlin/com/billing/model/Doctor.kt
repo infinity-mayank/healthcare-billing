@@ -36,6 +36,14 @@ enum class Specialty(
     ORTHO("Orthopedics", 800.0, 1000.0, 1500.0),
     CARDIO("Cardiology", 1000.0, 1500.0, 2000.0);
 
+    fun getFeeByExperience(yearsOfExperience: Int): Double {
+        return when {
+            yearsOfExperience < 20 -> feeUnder20Years
+            yearsOfExperience <= 30 -> fee20to30Years
+            else -> feeOver30Years
+        }
+    }
+
     companion object {
         fun fromString(value: String): Specialty? {
             return entries.find { it.name.equals(value, ignoreCase = true) }

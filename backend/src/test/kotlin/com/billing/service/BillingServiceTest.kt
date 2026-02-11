@@ -1,0 +1,105 @@
+package com.billing.service
+
+import com.billing.config.BillingConfiguration
+import com.billing.entity.DoctorEntity
+import com.billing.entity.PatientEntity
+import com.billing.repository.DoctorRepository
+import com.billing.repository.PatientRepository
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.exceptions.HttpStatusException
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
+import java.time.LocalDate
+import java.util.*
+
+class BillingServiceTest {
+
+    private val patientRepository = mock<PatientRepository>()
+    private val doctorRepository = mock<DoctorRepository>()
+    private val billingConfiguration = BillingConfiguration().apply { taxRate = 0.12 }
+    private val billingService = BillingService(doctorRepository, patientRepository, billingConfiguration)
+
+    @Test
+    fun `should generate bill successfully`() {
+        val patientId = UUID.randomUUID()
+        val patientEntity = PatientEntity(
+            id = patientId,
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = LocalDate.of(1990, 1, 1),
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+
+        val doctorEntity = DoctorEntity(
+            npiNumber = "1234567890",
+            firstName = "Jane",
+            lastName = "Smith",
+            specialty = "CARDIO",
+            practiceStartDate = LocalDate.of(2015, 1, 15)
+        )
+
+        whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
+        whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.of(doctorEntity))
+
+        val response = billingService.generateBill(patientId.toString(), "1234567890")
+
+        assertEquals(patientId.toString(), response.patientId)
+        assertEquals("1234567890", response.doctorNpiNumber)
+        assertEquals(1000.0, response.consultationFee)
+        assertEquals(120.0, response.taxAmount)
+        assertEquals(1120.0, response.totalAmount)
+    }
+
+    @Test
+    fun `should throw exception when patient not found`() {
+        val patientId = UUID.randomUUID()
+        whenever(patientRepository.findById(patientId)).thenReturn(Optional.empty())
+
+        val exception = assertThrows<HttpStatusException> {
+            billingService.generateBill(patientId.toString(), "1234567890")
+        }
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.status)
+        assertEquals("Patient not found with ID: $patientId", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when doctor not found`() {
+        val patientId = UUID.randomUUID()
+        val patientEntity = PatientEntity(
+            id = patientId,
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = LocalDate.of(1990, 1, 1),
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+
+        whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
+        whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.empty())
+
+        val exception = assertThrows<HttpStatusException> {
+            billingService.generateBill(patientId.toString(), "1234567890")
+        }
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.status)
+        assertEquals("Doctor not found with NPI number: 1234567890", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when patient ID format is invalid`() {
+        val exception = assertThrows<HttpStatusException> {
+            billingService.generateBill("invalid-uuid", "1234567890")
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+        assertEquals("Invalid patient ID format", exception.message)
+    }
+}
+

@@ -36,6 +36,7 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jdbc")
     runtimeOnly("com.h2database:h2")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    runtimeOnly("org.yaml:snakeyaml")
 }
 
 
