@@ -11,5 +11,9 @@ data class BillingResponse(
     val consultationFee: Double,
     val taxAmount: Double,
     val totalAmount: Double,
+    val coPayAmount: Double,
+    val insurancePayableAmount: Double,
+    val taxRatePercentage: Double,
+    val coPayRatePercentage: Double
 )
 

@@ -41,12 +41,20 @@ open class BillingService(
 
         val totalAmount = consultationFee + taxAmount
 
+        val coPayAmount = billingConfiguration.coPayRate * totalAmount
+
+        val insurancePayableAmount = totalAmount - coPayAmount
+
         return BillingResponse(
             patientId = patientEntity.id.toString(),
             doctorNpiNumber = doctorEntity.npiNumber,
             consultationFee = consultationFee,
             taxAmount = taxAmount,
-            totalAmount = totalAmount
+            totalAmount = totalAmount,
+            coPayAmount = coPayAmount,
+            insurancePayableAmount = insurancePayableAmount,
+            taxRatePercentage = billingConfiguration.taxRate * 100,
+            coPayRatePercentage = billingConfiguration.coPayRate * 100
         )
     }
 }

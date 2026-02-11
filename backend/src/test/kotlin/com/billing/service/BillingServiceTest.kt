@@ -19,7 +19,7 @@ class BillingServiceTest {
 
     private val patientRepository = mock<PatientRepository>()
     private val doctorRepository = mock<DoctorRepository>()
-    private val billingConfiguration = BillingConfiguration().apply { taxRate = 0.12 }
+    private val billingConfiguration = BillingConfiguration().apply { taxRate = 0.12; coPayRate = 0.10 }
     private val billingService = BillingService(doctorRepository, patientRepository, billingConfiguration)
 
     @Test
@@ -53,6 +53,10 @@ class BillingServiceTest {
         assertEquals(1000.0, response.consultationFee)
         assertEquals(120.0, response.taxAmount)
         assertEquals(1120.0, response.totalAmount)
+        assertEquals(112.0, response.coPayAmount)
+        assertEquals(1008.0, response.insurancePayableAmount)
+        assertEquals(12.0, response.taxRatePercentage)
+        assertEquals(10.0, response.coPayRatePercentage)
     }
 
     @Test
