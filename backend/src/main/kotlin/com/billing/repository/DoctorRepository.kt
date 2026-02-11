@@ -1,20 +1,9 @@
 package com.billing.repository
 
-import com.billing.model.Doctor
-import jakarta.inject.Singleton
-import java.util.concurrent.ConcurrentHashMap
+import com.billing.entity.DoctorEntity
+import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.query.builder.sql.Dialect
+import io.micronaut.data.repository.CrudRepository
 
-@Singleton
-open class DoctorRepository {
-
-    private val doctors = ConcurrentHashMap<String, Doctor>()
-
-    fun save(doctor: Doctor): Doctor {
-        doctors[doctor.npiNumber] = doctor
-        return doctor
-    }
-
-    fun findAll(): List<Doctor> {
-        return doctors.values.toList()
-    }
-}
+@JdbcRepository(dialect = Dialect.H2)
+interface DoctorRepository : CrudRepository<DoctorEntity, String> {}

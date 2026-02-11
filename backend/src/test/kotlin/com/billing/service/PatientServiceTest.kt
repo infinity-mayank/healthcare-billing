@@ -1,8 +1,7 @@
 package com.billing.service
 
 import com.billing.dto.PatientRegistrationRequest
-import com.billing.model.Insurance
-import com.billing.model.Patient
+import com.billing.entity.PatientEntity
 import com.billing.repository.PatientRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -41,28 +40,22 @@ class PatientServiceTest {
 
     @Test
     fun `should get all patients and return list of responses`() {
-        val patient1 = Patient(
-            id = "P0001",
+        val patient1 = PatientEntity(
             firstName = "John",
             lastName = "Doe",
             dateOfBirth = LocalDate.of(1990, 1, 1),
-            insurance = Insurance(
-                binNumber = "123456",
-                pcnNumber = "376833",
-                memberId = "398733"
-            )
+            insuranceBIN = "123456",
+            insurancePCN = "376833",
+            insuranceMemberID = "398733"
         )
 
-        val patient2 = Patient(
-            id = "P0002",
+        val patient2 = PatientEntity(
             firstName = "Jane",
             lastName = "Smith",
             dateOfBirth = LocalDate.of(1985, 5, 15),
-            insurance = Insurance(
-                binNumber = "654321",
-                pcnNumber = "398466",
-                memberId = "985983"
-            )
+            insuranceBIN = "654321",
+            insurancePCN = "398466",
+            insuranceMemberID = "985983"
         )
 
         whenever(patientRepository.findAll())
@@ -72,17 +65,13 @@ class PatientServiceTest {
 
         assertEquals(2, responses.size)
 
-        val response1 = responses.find { it.id == "P0001" }
-        assertEquals("John", response1?.firstName)
-        assertEquals("Doe", response1?.lastName)
+        val response1 = responses.find { it.firstName == "John" && it.lastName == "Doe" }
         assertEquals("01/01/1990", response1?.dateOfBirth)
         assertEquals("123456", response1?.insuranceBIN)
         assertEquals("376833", response1?.insurancePCN)
         assertEquals("398733", response1?.insuranceMemberID)
 
-        val response2 = responses.find { it.id == "P0002" }
-        assertEquals("Jane", response2?.firstName)
-        assertEquals("Smith", response2?.lastName)
+        val response2 = responses.find { it.firstName == "Jane" && it.lastName == "Smith" }
         assertEquals("05/15/1985", response2?.dateOfBirth)
         assertEquals("654321", response2?.insuranceBIN)
         assertEquals("398466", response2?.insurancePCN)

@@ -1,8 +1,7 @@
 package com.billing.service
 
 import com.billing.dto.DoctorRegistrationRequest
-import com.billing.model.Doctor
-import com.billing.model.Specialty
+import com.billing.entity.DoctorEntity
 import com.billing.repository.DoctorRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -40,20 +39,20 @@ class DoctorServiceTest {
 
     @Test
     fun `should get all doctors and return list of responses`() {
-        val doctor1 = Doctor(
+        val doctor1 = DoctorEntity(
             npiNumber = "1234567890",
             firstName = "John",
             lastName = "Doe",
             practiceStartDate = LocalDate.of(1990, 1, 1),
-            specialty = Specialty.ORTHO
+            specialty = "ORTHO"
         )
 
-        val doctor2 = Doctor(
+        val doctor2 = DoctorEntity(
             npiNumber = "1234567891",
             firstName = "Jane",
             lastName = "Smith",
             practiceStartDate = LocalDate.of(1985, 5, 15),
-            specialty = Specialty.CARDIO
+            specialty = "CARDIO"
         )
 
         whenever(doctorRepository.findAll())

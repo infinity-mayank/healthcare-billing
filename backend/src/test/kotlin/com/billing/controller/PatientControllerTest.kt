@@ -1,5 +1,6 @@
 package com.billing.controller
 
+import com.billing.TestDatabaseCleaner
 import com.billing.dto.PatientRegistrationRequest
 import com.billing.dto.PatientResponse
 import io.micronaut.core.type.Argument
@@ -10,6 +11,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -20,6 +22,9 @@ class PatientControllerTest {
     @field:Client("/")
     lateinit var client: HttpClient
 
+    @Inject
+    lateinit var dbCleaner: TestDatabaseCleaner
+
     private fun validRequest() =
         PatientRegistrationRequest(
             firstName = "John",
@@ -29,6 +34,11 @@ class PatientControllerTest {
             insurancePCN = "999888",
             insuranceMemberID = "2229838"
         )
+
+    @BeforeEach
+    fun setup() {
+        dbCleaner.clean("patients")
+    }
 
     @Test
     fun `should create patient and return 201`() {

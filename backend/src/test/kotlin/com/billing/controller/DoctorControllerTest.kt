@@ -1,5 +1,6 @@
 package com.billing.controller
 
+import com.billing.TestDatabaseCleaner
 import com.billing.dto.DoctorRegistrationRequest
 import com.billing.dto.DoctorResponse
 import io.micronaut.core.type.Argument
@@ -10,6 +11,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.collections.find
@@ -21,6 +23,10 @@ class DoctorControllerTest {
     @field:Client("/")
     lateinit var client: HttpClient
 
+    @Inject
+    lateinit var dbCleaner: TestDatabaseCleaner
+
+
     private fun validRequest() =
         DoctorRegistrationRequest(
             firstName = "Jane",
@@ -29,6 +35,11 @@ class DoctorControllerTest {
             specialty = "CARDIO",
             practiceStartDate = "01/15/2020"
         )
+
+    @BeforeEach
+    fun setup() {
+        dbCleaner.clean("doctors")
+    }
 
     @Test
     fun `should register doctor and return 201`() {

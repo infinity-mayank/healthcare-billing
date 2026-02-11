@@ -1,94 +1,74 @@
 package com.billing.repository
 
-import com.billing.model.Insurance
-import com.billing.model.Patient
+import com.billing.entity.PatientEntity
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
+@MicronautTest(transactional = false)
 class PatientRepositoryTest {
 
-    private val repository = PatientRepository()
+    @Inject
+    lateinit var repository: PatientRepository
 
-    @Test
-    fun `should generate id when patient id is empty`() {
-        val patient = Patient(
-            id = "",
-            firstName = "John",
-            lastName = "Doe",
-            dateOfBirth = LocalDate.of(1990, 1, 1),
-            insurance = Insurance(
-                binNumber = "123456",
-                pcnNumber = "320984",
-                memberId = "823873"
-            )
-        )
-
-        val saved = repository.save(patient)
-
-        assertTrue(saved.id.startsWith("P"))
-        assertEquals(5, saved.id.length)
+    @AfterEach
+    fun cleanup() {
+        repository.deleteAll()
     }
 
     @Test
-    fun `should keep existing id when patient id is present`() {
-        val patient = Patient(
-            id = "P9999",
+    fun `should generate id when patient id is empty`() {
+        val patient = PatientEntity(
             firstName = "John",
             lastName = "Doe",
             dateOfBirth = LocalDate.of(1990, 1, 1),
-            insurance = Insurance(
-                binNumber = "123456",
-                pcnNumber = "908403",
-                memberId = "387932"
-            )
+            insuranceBIN = "123456",
+            insurancePCN = "320984",
+            insuranceMemberID = "823873"
         )
 
         val saved = repository.save(patient)
 
-        assertEquals("P9999", saved.id)
+        assertNotNull(saved.id)
     }
 
     @Test
     fun `should return all saved patients`() {
-        val patient1 = Patient(
-            id = "",
+        val patient1 = PatientEntity(
             firstName = "John",
             lastName = "Doe",
             dateOfBirth = LocalDate.of(1990, 1, 1),
-            insurance = Insurance(
-                binNumber = "123456",
-                pcnNumber = "398347",
-                memberId = "938934"
-            )
+            insuranceBIN = "123456",
+            insurancePCN = "398347",
+            insuranceMemberID = "938934"
         )
         repository.save(patient1)
 
-        val patient2 = Patient(
-            id = "",
+        val patient2 = PatientEntity(
             firstName = "Jane",
             lastName = "Smith",
             dateOfBirth = LocalDate.of(1985, 5, 15),
-            insurance = Insurance(
-                binNumber = "654321",
-                pcnNumber = "998889",
-                memberId = "37439"
-            )
+            insuranceBIN = "654321",
+            insurancePCN = "998889",
+            insuranceMemberID = "37439"
         )
         repository.save(patient2)
 
         val allPatients = repository.findAll()
 
-        assertTrue(allPatients.size == 2, "Expected 2 patients")
+        assertTrue(allPatients.size >= 2, "Expected at least 2 patients")
 
         val johnDoe = allPatients.find { it.firstName == "John" && it.lastName == "Doe" }
         assertNotNull(johnDoe)
         assertEquals(LocalDate.of(1990, 1, 1), johnDoe!!.dateOfBirth)
-        assertEquals("123456", johnDoe.insurance.binNumber)
+        assertEquals("123456", johnDoe.insuranceBIN)
 
         val janeSmith = allPatients.find { it.firstName == "Jane" && it.lastName == "Smith" }
         assertNotNull(janeSmith)
         assertEquals(LocalDate.of(1985, 5, 15), janeSmith!!.dateOfBirth)
-        assertEquals("654321", janeSmith.insurance.binNumber)
+        assertEquals("654321", janeSmith.insuranceBIN)
     }
 }

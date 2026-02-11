@@ -1,28 +1,10 @@
 package com.billing.repository
 
-import com.billing.model.Patient
-import jakarta.inject.Singleton
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
+import com.billing.entity.PatientEntity
+import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.query.builder.sql.Dialect
+import io.micronaut.data.repository.CrudRepository
+import java.util.UUID
 
-@Singleton
-open class PatientRepository {
-
-    private val patients = ConcurrentHashMap<String, Patient>()
-    private val idCounter = AtomicInteger(0)
-
-    fun save(patient: Patient): Patient {
-        val savedPatient = if (patient.id.isEmpty()) {
-            patient.copy(id = "P${idCounter.incrementAndGet().toString().padStart(4, '0')}")
-        } else {
-            patient
-        }
-        patients[savedPatient.id] = savedPatient
-        return savedPatient
-    }
-
-    fun findAll(): List<Patient> {
-        return patients.values.toList()
-    }
-
-}
+@JdbcRepository(dialect = Dialect.H2)
+interface PatientRepository : CrudRepository<PatientEntity, UUID> {}
