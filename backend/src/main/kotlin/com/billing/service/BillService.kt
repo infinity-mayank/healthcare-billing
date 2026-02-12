@@ -42,9 +42,15 @@ open class BillService(
 
         val consultationFee = doctor.specialty.getFeeByExperience(yearsOfExperience)
 
-        val taxAmount = consultationFee * billingConfiguration.taxRate
+        val priorAppointmentsCount = billRepository.countByPatientId(patientId)
+        val discountPercentage = minOf(priorAppointmentsCount.toDouble(), billingConfiguration.minDiscountRate * 100)
+        val discountAmount = consultationFee * (discountPercentage / 100.0)
 
-        val totalAmount = consultationFee + taxAmount
+        val discountedFee = consultationFee - discountAmount
+
+        val taxAmount = discountedFee * billingConfiguration.taxRate
+
+        val totalAmount = discountedFee + taxAmount
 
         val coPayAmount = billingConfiguration.coPayRate * totalAmount
 
@@ -59,7 +65,9 @@ open class BillService(
             coPayAmount = coPayAmount,
             insurancePayableAmount = insurancePayableAmount,
             taxRatePercentage = billingConfiguration.taxRate * 100,
-            coPayRatePercentage = billingConfiguration.coPayRate * 100
+            coPayRatePercentage = billingConfiguration.coPayRate * 100,
+            discountAmount = discountAmount,
+            discountPercentage = discountPercentage,
         )
     }
 
@@ -87,7 +95,9 @@ open class BillService(
             coPayAmount = request.coPayAmount,
             insurancePayableAmount = request.insurancePayableAmount,
             taxRatePercentage = request.taxRatePercentage,
-            coPayRatePercentage = request.coPayRatePercentage
+            coPayRatePercentage = request.coPayRatePercentage,
+            discountAmount = request.discountAmount,
+            discountPercentage = request.discountPercentage,
         )
 
         val savedBill = billRepository.save(billEntity)

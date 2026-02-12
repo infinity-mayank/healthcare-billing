@@ -59,7 +59,9 @@ class BillRepositoryTest {
             coPayAmount = 112.0,
             insurancePayableAmount = 1008.0,
             taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0
+            coPayRatePercentage = 10.0,
+            discountAmount = 0.0,
+            discountPercentage = 0.0,
         )
 
         val saved = repository.save(bill)

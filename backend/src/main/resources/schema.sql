@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS bills (
     patient_id UUID NOT NULL,
     doctor_npi_number VARCHAR(10) NOT NULL,
     consultation_fee DOUBLE NOT NULL,
+    discount_amount DOUBLE NOT NULL,
+    discount_percentage DOUBLE NOT NULL,
     tax_amount DOUBLE NOT NULL,
     total_amount DOUBLE NOT NULL,
     co_pay_amount DOUBLE NOT NULL,

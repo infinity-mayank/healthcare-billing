@@ -17,7 +17,9 @@ data class BillResponse(
     val coPayAmount: Double,
     val insurancePayableAmount: Double,
     val taxRatePercentage: Double,
-    val coPayRatePercentage: Double
+    val coPayRatePercentage: Double,
+    val discountAmount: Double,
+    val discountPercentage: Double,
 )
 
 @Serdeable
@@ -48,7 +50,13 @@ data class SaveBillRequest(
     val taxRatePercentage: Double,
 
     @field:PositiveOrZero(message = "Co-pay rate percentage must be positive or zero")
-    val coPayRatePercentage: Double
+    val coPayRatePercentage: Double,
+
+    @field:PositiveOrZero(message = "Discount amount must be positive or zero")
+    val discountAmount: Double,
+
+    @field:PositiveOrZero(message = "Discount percentage must be positive or zero")
+    val discountPercentage: Double
 )
 
 @Serdeable

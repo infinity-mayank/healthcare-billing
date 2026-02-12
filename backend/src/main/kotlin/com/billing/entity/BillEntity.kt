@@ -20,6 +20,8 @@ data class BillEntity(
     val insurancePayableAmount: Double,
     val taxRatePercentage: Double,
     val coPayRatePercentage: Double,
+    val discountAmount: Double,
+    val discountPercentage: Double,
     @DateCreated
     val createdAt: LocalDateTime? = null,
     @DateUpdated

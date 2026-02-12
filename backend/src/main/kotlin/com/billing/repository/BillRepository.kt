@@ -7,5 +7,7 @@ import io.micronaut.data.repository.CrudRepository
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.H2)
-interface BillRepository : CrudRepository<BillEntity, UUID>
+interface BillRepository : CrudRepository<BillEntity, UUID> {
+    fun countByPatientId(patientId: UUID): Long
+}
 

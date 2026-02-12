@@ -12,4 +12,7 @@ class BillingConfiguration {
     @PositiveOrZero
     var coPayRate: Double = 0.00
 
+    @PositiveOrZero
+    var minDiscountRate: Double = 0.00
+
 }

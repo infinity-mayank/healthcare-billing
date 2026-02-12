@@ -27,8 +27,10 @@ CREATE TABLE IF NOT EXISTS bills (
     insurance_payable_amount DOUBLE NOT NULL,
     tax_rate_percentage DOUBLE NOT NULL,
     co_pay_rate_percentage DOUBLE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    discount_amount DOUBLE NOT NULL,
+    discount_percentage DOUBLE NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     FOREIGN KEY (patient_id) REFERENCES patients(id),
     FOREIGN KEY (doctor_npi_number) REFERENCES doctors(npi_number)
 );

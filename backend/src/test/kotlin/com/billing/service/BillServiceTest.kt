@@ -26,7 +26,7 @@ class BillServiceTest {
     private val patientRepository = mock<PatientRepository>()
     private val doctorRepository = mock<DoctorRepository>()
     private val billRepository = mock<BillRepository>()
-    private val billingConfiguration = BillingConfiguration().apply { taxRate = 0.12; coPayRate = 0.10 }
+    private val billingConfiguration = BillingConfiguration().apply { taxRate = 0.12; coPayRate = 0.10; minDiscountRate = 0.10; }
     private val billService = BillService(doctorRepository, patientRepository, billingConfiguration, billRepository)
 
     @Test
@@ -52,12 +52,15 @@ class BillServiceTest {
 
         whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
         whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.of(doctorEntity))
+        whenever(billRepository.countByPatientId(patientId)).thenReturn(0L)
 
         val response = billService.generateBill(patientId.toString(), "1234567890")
 
         assertEquals(patientId.toString(), response.patientId)
         assertEquals("1234567890", response.doctorNpiNumber)
         assertEquals(1000.0, response.consultationFee)
+        assertEquals(0.0, response.discountAmount)
+        assertEquals(0.0, response.discountPercentage)
         assertEquals(120.0, response.taxAmount)
         assertEquals(1120.0, response.totalAmount)
         assertEquals(112.0, response.coPayAmount)
@@ -114,6 +117,72 @@ class BillServiceTest {
     }
 
     @Test
+    fun `should apply 3 percent discount for patient with 3 prior appointments`() {
+        val patientId = UUID.randomUUID()
+        val patientEntity = PatientEntity(
+            id = patientId,
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = LocalDate.of(1990, 1, 1),
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+
+        val doctorEntity = DoctorEntity(
+            npiNumber = "1234567890",
+            firstName = "Jane",
+            lastName = "Smith",
+            specialty = "CARDIO",
+            practiceStartDate = LocalDate.of(2015, 1, 15)
+        )
+
+        whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
+        whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.of(doctorEntity))
+        whenever(billRepository.countByPatientId(patientId)).thenReturn(3)
+
+        val response = billService.generateBill(patientId.toString(), "1234567890")
+
+        assertEquals(3.0, response.discountPercentage)
+        assertEquals(30.0, response.discountAmount)
+        assertEquals(116.4, response.taxAmount, 0.1)
+        assertEquals(1086.4, response.totalAmount, 0.1)
+    }
+
+    @Test
+    fun `should cap discount at 10 percent for patient with 14 prior appointments`() {
+        val patientId = UUID.randomUUID()
+        val patientEntity = PatientEntity(
+            id = patientId,
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = LocalDate.of(1990, 1, 1),
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+
+        val doctorEntity = DoctorEntity(
+            npiNumber = "1234567890",
+            firstName = "Jane",
+            lastName = "Smith",
+            specialty = "CARDIO",
+            practiceStartDate = LocalDate.of(2015, 1, 15)
+        )
+
+        whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
+        whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.of(doctorEntity))
+        whenever(billRepository.countByPatientId(patientId)).thenReturn(14L)
+
+        val response = billService.generateBill(patientId.toString(), "1234567890")
+
+        assertEquals(10.0, response.discountPercentage)
+        assertEquals(100.0, response.discountAmount)
+        assertEquals(108.0, response.taxAmount)
+        assertEquals(1008.0, response.totalAmount)
+    }
+
+    @Test
     fun `should save bill successfully`() {
         val patientId = UUID.randomUUID()
         val patientEntity = PatientEntity(
@@ -145,6 +214,8 @@ class BillServiceTest {
             insurancePayableAmount = 1008.0,
             taxRatePercentage = 12.0,
             coPayRatePercentage = 10.0,
+            discountAmount = 0.0,
+            discountPercentage = 0.0,
             createdAt = LocalDateTime.now()
         )
 
@@ -161,7 +232,9 @@ class BillServiceTest {
             coPayAmount = 112.0,
             insurancePayableAmount = 1008.0,
             taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0
+            coPayRatePercentage = 10.0,
+            discountAmount = 0.0,
+            discountPercentage = 0.0,
         )
 
         val response = billService.saveBill(request)
@@ -181,7 +254,9 @@ class BillServiceTest {
             coPayAmount = 112.0,
             insurancePayableAmount = 1008.0,
             taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0
+            coPayRatePercentage = 10.0,
+            discountAmount = 0.0,
+            discountPercentage = 0.0,
         )
 
         val exception = assertThrows<HttpStatusException> {
@@ -206,7 +281,9 @@ class BillServiceTest {
             coPayAmount = 112.0,
             insurancePayableAmount = 1008.0,
             taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0
+            coPayRatePercentage = 10.0,
+            discountAmount = 0.0,
+            discountPercentage = 0.0,
         )
 
         val exception = assertThrows<HttpStatusException> {
@@ -242,7 +319,9 @@ class BillServiceTest {
             coPayAmount = 112.0,
             insurancePayableAmount = 1008.0,
             taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0
+            coPayRatePercentage = 10.0,
+            discountAmount = 0.0,
+            discountPercentage = 0.0,
         )
 
         val exception = assertThrows<HttpStatusException> {
