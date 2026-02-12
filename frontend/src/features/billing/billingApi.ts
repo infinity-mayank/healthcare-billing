@@ -8,6 +8,6 @@ export const billingAPI = {
             patientId
         }).toString();
 
-        return apiClient.get<Bill>(`/api/billing/generate?${query}`);
+        return apiClient.get<Bill>(`/api/bill/generate?${query}`);
     }
 };
