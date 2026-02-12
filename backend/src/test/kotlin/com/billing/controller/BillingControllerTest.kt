@@ -6,6 +6,8 @@ import com.billing.dto.DoctorRegistrationRequest
 import com.billing.dto.PatientRegistrationRequest
 import com.billing.dto.PatientResponse
 import com.billing.dto.DoctorResponse
+import com.billing.dto.SaveBillRequest
+import com.billing.dto.SaveBillResponse
 import io.micronaut.http.*
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
@@ -32,6 +34,7 @@ class BillingControllerTest {
     fun setup() {
         dbCleaner.clean("patients")
         dbCleaner.clean("doctors")
+        dbCleaner.clean("bills")
     }
 
     @Test
@@ -164,6 +167,133 @@ class BillingControllerTest {
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+    }
+
+    @Test
+    fun `should save bill and return 201`() {
+        val patientRequest = PatientRegistrationRequest(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "01/01/1990",
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+        val patientResponse = client.toBlocking()
+            .exchange(HttpRequest.POST("/api/patients", patientRequest), PatientResponse::class.java)
+        val patientId = patientResponse.body()!!.id
+
+        val doctorRequest = DoctorRegistrationRequest(
+            firstName = "Jane",
+            lastName = "Smith",
+            npiNumber = "1234567890",
+            specialty = "CARDIO",
+            practiceStartDate = "01/15/2020"
+        )
+        client.toBlocking().exchange(HttpRequest.POST("/api/doctors", doctorRequest), DoctorResponse::class.java)
+
+        val saveBillRequest = SaveBillRequest(
+            patientId = patientId,
+            doctorNpiNumber = "1234567890",
+            consultationFee = 1000.0,
+            taxAmount = 120.0,
+            totalAmount = 1120.0,
+            coPayAmount = 112.0,
+            insurancePayableAmount = 1008.0,
+            taxRatePercentage = 12.0,
+            coPayRatePercentage = 10.0
+        )
+
+        val response = client.toBlocking()
+            .exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+
+        assertEquals(HttpStatus.CREATED, response.status)
+        assertNotNull(response.body()!!.id)
+        assertNotNull(response.body()!!.createdAt)
+    }
+
+    @Test
+    fun `should return 400 when saving bill with invalid patient ID format`() {
+        val saveBillRequest = SaveBillRequest(
+            patientId = "invalid-uuid",
+            doctorNpiNumber = "1234567890",
+            consultationFee = 1000.0,
+            taxAmount = 120.0,
+            totalAmount = 1120.0,
+            coPayAmount = 112.0,
+            insurancePayableAmount = 1008.0,
+            taxRatePercentage = 12.0,
+            coPayRatePercentage = 10.0
+        )
+
+        val exception = assertThrows<HttpClientResponseException> {
+            client.toBlocking().exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+    }
+
+    @Test
+    fun `should return 404 when saving bill when patient is not available`() {
+        val doctorRequest = DoctorRegistrationRequest(
+            firstName = "Jane",
+            lastName = "Smith",
+            npiNumber = "1234567890",
+            specialty = "CARDIO",
+            practiceStartDate = "01/15/2020"
+        )
+        client.toBlocking().exchange(HttpRequest.POST("/api/doctors", doctorRequest), DoctorResponse::class.java)
+
+        val saveBillRequest = SaveBillRequest(
+            patientId = UUID.randomUUID().toString(),
+            doctorNpiNumber = "1234567890",
+            consultationFee = 1000.0,
+            taxAmount = 120.0,
+            totalAmount = 1120.0,
+            coPayAmount = 112.0,
+            insurancePayableAmount = 1008.0,
+            taxRatePercentage = 12.0,
+            coPayRatePercentage = 10.0
+        )
+
+        val exception = assertThrows<HttpClientResponseException> {
+            client.toBlocking().exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+        }
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.status)
+    }
+
+    @Test
+    fun `should return 404 when saving bill when doctor is not available`() {
+        val patientRequest = PatientRegistrationRequest(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "01/01/1990",
+            insuranceBIN = "123456",
+            insurancePCN = "999888",
+            insuranceMemberID = "2229838"
+        )
+        val patientResponse = client.toBlocking()
+            .exchange(HttpRequest.POST("/api/patients", patientRequest), PatientResponse::class.java)
+        val patientId = patientResponse.body()!!.id
+
+        val saveBillRequest = SaveBillRequest(
+            patientId = patientId,
+            doctorNpiNumber = "9999999999",
+            consultationFee = 1000.0,
+            taxAmount = 120.0,
+            totalAmount = 1120.0,
+            coPayAmount = 112.0,
+            insurancePayableAmount = 1008.0,
+            taxRatePercentage = 12.0,
+            coPayRatePercentage = 10.0
+        )
+
+        val exception = assertThrows<HttpClientResponseException> {
+            client.toBlocking().exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+        }
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.status)
     }
 }
 

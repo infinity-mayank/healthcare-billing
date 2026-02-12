@@ -2,7 +2,11 @@ package com.billing.service
 
 import com.billing.config.BillingConfiguration
 import com.billing.dto.BillingResponse
+import com.billing.dto.SaveBillRequest
+import com.billing.dto.SaveBillResponse
+import com.billing.entity.BillEntity
 import com.billing.mapper.EntityMapper.toDomain
+import com.billing.repository.BillingRepository
 import com.billing.repository.DoctorRepository
 import com.billing.repository.PatientRepository
 import io.micronaut.http.HttpStatus
@@ -14,7 +18,8 @@ import java.util.UUID
 open class BillingService(
     private val doctorRepository: DoctorRepository,
     private val patientRepository: PatientRepository,
-    private val billingConfiguration: BillingConfiguration
+    private val billingConfiguration: BillingConfiguration,
+    private val billingRepository: BillingRepository
 ) {
 
     fun generateBill(patientId: String, doctorNpiNumber: String): BillingResponse {
@@ -57,7 +62,39 @@ open class BillingService(
             coPayRatePercentage = billingConfiguration.coPayRate * 100
         )
     }
+
+    fun saveBill(request: SaveBillRequest): SaveBillResponse {
+        val patientId = try {
+            UUID.fromString(request.patientId)
+        } catch (e: IllegalArgumentException) {
+            throw HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid patient ID format")
+        }
+
+        patientRepository.findById(patientId).orElseThrow {
+            HttpStatusException(HttpStatus.NOT_FOUND, "Patient not found with ID: ${request.patientId}")
+        }
+
+        doctorRepository.findById(request.doctorNpiNumber).orElseThrow {
+            HttpStatusException(HttpStatus.NOT_FOUND, "Doctor not found with NPI number: ${request.doctorNpiNumber}")
+        }
+
+        val billEntity = BillEntity(
+            patientId = patientId,
+            doctorNpiNumber = request.doctorNpiNumber,
+            consultationFee = request.consultationFee,
+            taxAmount = request.taxAmount,
+            totalAmount = request.totalAmount,
+            coPayAmount = request.coPayAmount,
+            insurancePayableAmount = request.insurancePayableAmount,
+            taxRatePercentage = request.taxRatePercentage,
+            coPayRatePercentage = request.coPayRatePercentage
+        )
+
+        val savedBill = billingRepository.save(billEntity)
+
+        return SaveBillResponse(
+            id = savedBill.id.toString(),
+            createdAt = billEntity.createdAt.toString()
+        )
+    }
 }
-
-
-
