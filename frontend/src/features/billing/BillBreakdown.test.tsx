@@ -14,7 +14,9 @@ describe('BillBreakdown', () => {
         coPayAmount: 112.0,
         insurancePayableAmount: 1008.0,
         taxRatePercentage: 12.0,
-        coPayRatePercentage: 10.0
+        coPayRatePercentage: 10.0,
+        discountAmount: 100.0,
+        discountPercentage: 10.0
     };
 
     it('renders bill breakdown with all fields', () => {
@@ -22,11 +24,13 @@ describe('BillBreakdown', () => {
 
         expect(screen.getByText(BILLING_LABELS.BILL_BREAKDOWN)).toBeInTheDocument();
         expect(screen.getByText(BILLING_LABELS.CONSULTATION_FEE)).toBeInTheDocument();
+        expect(screen.getByText(`${BILLING_LABELS.DISCOUNT} (${mockBill.discountPercentage}%)`)).toBeInTheDocument();
         expect(screen.getByText(`${BILLING_LABELS.GST} (${mockBill.taxRatePercentage}%)`)).toBeInTheDocument();
         expect(screen.getByText(BILLING_LABELS.SUBTOTAL)).toBeInTheDocument();
         expect(screen.getByText(BILLING_LABELS.INSURANCE_COVERAGE)).toBeInTheDocument();
         expect(screen.getByText(`${BILLING_LABELS.CO_PAY} (${mockBill.coPayRatePercentage}%)`)).toBeInTheDocument();
         expect(screen.getByText('$1,000.00')).toBeInTheDocument();
+        expect(screen.getByText('-$100.00')).toBeInTheDocument();
         expect(screen.getByText('$120.00')).toBeInTheDocument();
         expect(screen.getByText('$1,120.00')).toBeInTheDocument();
         expect(screen.getByText('-$1,008.00')).toBeInTheDocument();

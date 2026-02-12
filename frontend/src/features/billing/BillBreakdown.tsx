@@ -37,7 +37,14 @@ const BillBreakdown = ({ bill }: BillBreakdownProps): React.ReactNode => {
                         {formatCurrency(bill.consultationFee)}
                     </Typography>
                 </Stack>
-
+                <Stack direction="row" justifyContent="space-between">
+                    <Typography color="text.secondary">
+                        {BILLING_LABELS.DISCOUNT} ({bill.discountPercentage}%)
+                    </Typography>
+                    <Typography fontWeight={600} color="success.main">
+                        -{formatCurrency(bill.discountAmount)}
+                    </Typography>
+                </Stack>
                 <Stack direction="row" justifyContent="space-between">
                     <Typography color="text.secondary">
                         {BILLING_LABELS.GST} ({bill.taxRatePercentage}%)

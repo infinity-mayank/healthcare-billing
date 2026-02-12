@@ -50,4 +50,6 @@ export interface Bill {
     insurancePayableAmount: number;
     taxRatePercentage: number;
     coPayRatePercentage: number;
+    discountAmount: number;
+    discountPercentage: number;
 }

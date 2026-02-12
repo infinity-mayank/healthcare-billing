@@ -32,6 +32,7 @@ export const BILLING_LABELS = {
     INSURANCE_COVERAGE: 'Insurance Coverage',
     CO_PAY: 'Co-Pay',
     SAVE_BILL: 'Save Bill',
+    DISCOUNT: 'Discount',
 }
 
 export type HttpMethod =
