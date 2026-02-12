@@ -35,7 +35,7 @@ const GenerateBill = ({
             console.error('Failed to load patients:', error);
             showError('Failed to load patients. Please try again.');
         }
-    }, [showError]);
+    }, []);
 
     const loadDoctors = useCallback(async () => {
         try {
@@ -45,7 +45,7 @@ const GenerateBill = ({
             console.error('Failed to load doctors:', error);
             showError('Failed to load doctors. Please try again.');
         }
-    }, [showError]);
+    }, []);
 
     useEffect(() => {
         const loadData = async () => {
@@ -54,7 +54,7 @@ const GenerateBill = ({
         }
 
         loadData();
-    }, [loadPatients, refreshCounter, loadDoctors]);
+    }, [refreshCounter]);
 
     const generateBill = useCallback(async () => {
         try {
@@ -64,7 +64,7 @@ const GenerateBill = ({
             console.error('Failed to generate bill:', error);
             showError('Failed to generate bill. Please try again.');
         }
-    }, [selectedPatientId, selectedDoctorId, showError]);
+    }, [selectedPatientId, selectedDoctorId]);
 
     useEffect(() => {
         const loadBillData = async () => {
@@ -74,7 +74,7 @@ const GenerateBill = ({
         }
 
         loadBillData();
-    }, [selectedDoctorId, selectedPatientId, generateBill]);
+    }, [selectedDoctorId, selectedPatientId]);
 
     const resetSelections = useCallback(() => {
         setSelectedPatientId(EMPTY_STRING);
