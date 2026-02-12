@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 @MicronautTest
-class BillingRepositoryTest {
+class BillRepositoryTest {
 
     @Inject
-    lateinit var repository: BillingRepository
+    lateinit var repository: BillRepository
 
     @Inject
     lateinit var patientRepository: PatientRepository

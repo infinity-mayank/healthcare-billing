@@ -8,7 +8,7 @@ import jakarta.validation.constraints.PositiveOrZero
 
 @Serdeable
 @Introspected
-data class BillingResponse(
+data class BillResponse(
     val patientId: String,
     val doctorNpiNumber: String,
     val consultationFee: Double,

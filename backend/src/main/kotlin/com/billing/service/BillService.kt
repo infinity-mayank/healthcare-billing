@@ -1,12 +1,12 @@
 package com.billing.service
 
 import com.billing.config.BillingConfiguration
-import com.billing.dto.BillingResponse
+import com.billing.dto.BillResponse
 import com.billing.dto.SaveBillRequest
 import com.billing.dto.SaveBillResponse
 import com.billing.entity.BillEntity
 import com.billing.mapper.EntityMapper.toDomain
-import com.billing.repository.BillingRepository
+import com.billing.repository.BillRepository
 import com.billing.repository.DoctorRepository
 import com.billing.repository.PatientRepository
 import io.micronaut.http.HttpStatus
@@ -15,14 +15,14 @@ import jakarta.inject.Singleton
 import java.util.UUID
 
 @Singleton
-open class BillingService(
+open class BillService(
     private val doctorRepository: DoctorRepository,
     private val patientRepository: PatientRepository,
     private val billingConfiguration: BillingConfiguration,
-    private val billingRepository: BillingRepository
+    private val billRepository: BillRepository
 ) {
 
-    fun generateBill(patientId: String, doctorNpiNumber: String): BillingResponse {
+    fun generateBill(patientId: String, doctorNpiNumber: String): BillResponse {
         val patientId = try {
             UUID.fromString(patientId)
         } catch (e: IllegalArgumentException) {
@@ -50,7 +50,7 @@ open class BillingService(
 
         val insurancePayableAmount = totalAmount - coPayAmount
 
-        return BillingResponse(
+        return BillResponse(
             patientId = patientEntity.id.toString(),
             doctorNpiNumber = doctorEntity.npiNumber,
             consultationFee = consultationFee,
@@ -90,7 +90,7 @@ open class BillingService(
             coPayRatePercentage = request.coPayRatePercentage
         )
 
-        val savedBill = billingRepository.save(billEntity)
+        val savedBill = billRepository.save(billEntity)
 
         return SaveBillResponse(
             id = savedBill.id.toString(),

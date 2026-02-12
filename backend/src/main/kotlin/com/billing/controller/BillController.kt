@@ -1,9 +1,9 @@
 package com.billing.controller
 
-import com.billing.dto.BillingResponse
+import com.billing.dto.BillResponse
 import com.billing.dto.SaveBillRequest
 import com.billing.dto.SaveBillResponse
-import com.billing.service.BillingService
+import com.billing.service.BillService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -13,18 +13,18 @@ import io.micronaut.http.annotation.QueryValue
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 
-@Controller("/api/billing")
-open class BillingController(
-    private val billingService: BillingService
+@Controller("/api/bill")
+open class BillController(
+    private val billService: BillService
 ) {
 
     @Get("/generate")
     open fun generateBill(
         @QueryValue @NotBlank patientId: String,
         @QueryValue @NotBlank doctorNpiNumber: String
-    ): HttpResponse<BillingResponse> {
+    ): HttpResponse<BillResponse> {
 
-        val response = billingService.generateBill(
+        val response = billService.generateBill(
             patientId = patientId,
             doctorNpiNumber = doctorNpiNumber
         )
@@ -33,7 +33,7 @@ open class BillingController(
 
     @Post("/save")
     open fun saveBill(@Body @Valid request: SaveBillRequest): HttpResponse<SaveBillResponse> {
-        val response = billingService.saveBill(request)
+        val response = billService.saveBill(request)
         return HttpResponse.created(response)
     }
 }

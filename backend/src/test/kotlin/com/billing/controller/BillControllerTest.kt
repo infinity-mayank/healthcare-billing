@@ -1,7 +1,7 @@
 package com.billing.controller
 
 import com.billing.TestDatabaseCleaner
-import com.billing.dto.BillingResponse
+import com.billing.dto.BillResponse
 import com.billing.dto.DoctorRegistrationRequest
 import com.billing.dto.PatientRegistrationRequest
 import com.billing.dto.PatientResponse
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 @MicronautTest
-class BillingControllerTest {
+class BillControllerTest {
 
     @Inject
     @field:Client("/")
@@ -66,9 +66,9 @@ class BillingControllerTest {
             .exchange(doctorCreateRequest, DoctorResponse::class.java)
         val doctorNpiNumber = doctorResponse.body().npiNumber
 
-        val billRequest = HttpRequest.GET<Any>("/api/billing/generate?patientId=$patientId&doctorNpiNumber=$doctorNpiNumber")
+        val billRequest = HttpRequest.GET<Any>("/api/bill/generate?patientId=$patientId&doctorNpiNumber=$doctorNpiNumber")
         val billResponse = client.toBlocking()
-            .exchange(billRequest, BillingResponse::class.java)
+            .exchange(billRequest, BillResponse::class.java)
 
         assertEquals(HttpStatus.OK, billResponse.status)
 
@@ -97,10 +97,10 @@ class BillingControllerTest {
         val doctorNpiNumber = doctorResponse.body()!!.npiNumber
 
         val invalidPatientId = "00000000-0000-0000-0000-000000000000"
-        val billRequest = HttpRequest.GET<Any>("/api/billing/generate?patientId=$invalidPatientId&doctorNpiNumber=$doctorNpiNumber")
+        val billRequest = HttpRequest.GET<Any>("/api/bill/generate?patientId=$invalidPatientId&doctorNpiNumber=$doctorNpiNumber")
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(billRequest, BillingResponse::class.java)
+            client.toBlocking().exchange(billRequest, BillResponse::class.java)
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)
@@ -123,10 +123,10 @@ class BillingControllerTest {
         val patientId = patientResponse.body()!!.id
 
         val invalidDoctorNpi = "9999999999"
-        val billRequest = HttpRequest.GET<Any>("/api/billing/generate?patientId=$patientId&doctorNpiNumber=$invalidDoctorNpi")
+        val billRequest = HttpRequest.GET<Any>("/api/bill/generate?patientId=$patientId&doctorNpiNumber=$invalidDoctorNpi")
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(billRequest, BillingResponse::class.java)
+            client.toBlocking().exchange(billRequest, BillResponse::class.java)
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)
@@ -136,10 +136,10 @@ class BillingControllerTest {
     fun `should return 400 when patientId format is invalid`() {
         val invalidPatientId = "invalid-uuid"
         val doctorNpiNumber = "1234567890"
-        val billRequest = HttpRequest.GET<Any>("/api/billing/generate?patientId=$invalidPatientId&doctorNpiNumber=$doctorNpiNumber")
+        val billRequest = HttpRequest.GET<Any>("/api/bill/generate?patientId=$invalidPatientId&doctorNpiNumber=$doctorNpiNumber")
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(billRequest, BillingResponse::class.java)
+            client.toBlocking().exchange(billRequest, BillResponse::class.java)
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
@@ -148,10 +148,10 @@ class BillingControllerTest {
     @Test
     fun `should return 400 when patientId is missing`() {
         val doctorNpiNumber = "1234567890"
-        val billRequest = HttpRequest.GET<Any>("/api/billing/generate?doctorNpiNumber=$doctorNpiNumber")
+        val billRequest = HttpRequest.GET<Any>("/api/bill/generate?doctorNpiNumber=$doctorNpiNumber")
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(billRequest, BillingResponse::class.java)
+            client.toBlocking().exchange(billRequest, BillResponse::class.java)
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
@@ -160,10 +160,10 @@ class BillingControllerTest {
     @Test
     fun `should return 400 when doctorNpiNumber is missing`() {
         val patientId = UUID.randomUUID();
-        val billRequest = HttpRequest.GET<Any>("/api/billing/generate?patientId=$patientId")
+        val billRequest = HttpRequest.GET<Any>("/api/bill/generate?patientId=$patientId")
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(billRequest, BillingResponse::class.java)
+            client.toBlocking().exchange(billRequest, BillResponse::class.java)
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
@@ -205,7 +205,7 @@ class BillingControllerTest {
         )
 
         val response = client.toBlocking()
-            .exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+            .exchange(HttpRequest.POST("/api/bill/save", saveBillRequest), SaveBillResponse::class.java)
 
         assertEquals(HttpStatus.CREATED, response.status)
         assertNotNull(response.body()!!.id)
@@ -227,7 +227,7 @@ class BillingControllerTest {
         )
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+            client.toBlocking().exchange(HttpRequest.POST("/api/bill/save", saveBillRequest), SaveBillResponse::class.java)
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
@@ -290,7 +290,7 @@ class BillingControllerTest {
         )
 
         val exception = assertThrows<HttpClientResponseException> {
-            client.toBlocking().exchange(HttpRequest.POST("/api/billing/save", saveBillRequest), SaveBillResponse::class.java)
+            client.toBlocking().exchange(HttpRequest.POST("/api/bill/save", saveBillRequest), SaveBillResponse::class.java)
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)

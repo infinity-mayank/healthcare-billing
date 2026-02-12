@@ -5,7 +5,7 @@ import com.billing.dto.SaveBillRequest
 import com.billing.entity.BillEntity
 import com.billing.entity.DoctorEntity
 import com.billing.entity.PatientEntity
-import com.billing.repository.BillingRepository
+import com.billing.repository.BillRepository
 import com.billing.repository.DoctorRepository
 import com.billing.repository.PatientRepository
 import io.micronaut.http.HttpStatus
@@ -21,13 +21,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class BillingServiceTest {
+class BillServiceTest {
 
     private val patientRepository = mock<PatientRepository>()
     private val doctorRepository = mock<DoctorRepository>()
-    private val billingRepository = mock<BillingRepository>()
+    private val billRepository = mock<BillRepository>()
     private val billingConfiguration = BillingConfiguration().apply { taxRate = 0.12; coPayRate = 0.10 }
-    private val billingService = BillingService(doctorRepository, patientRepository, billingConfiguration, billingRepository)
+    private val billService = BillService(doctorRepository, patientRepository, billingConfiguration, billRepository)
 
     @Test
     fun `should generate bill successfully`() {
@@ -53,7 +53,7 @@ class BillingServiceTest {
         whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
         whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.of(doctorEntity))
 
-        val response = billingService.generateBill(patientId.toString(), "1234567890")
+        val response = billService.generateBill(patientId.toString(), "1234567890")
 
         assertEquals(patientId.toString(), response.patientId)
         assertEquals("1234567890", response.doctorNpiNumber)
@@ -72,7 +72,7 @@ class BillingServiceTest {
         whenever(patientRepository.findById(patientId)).thenReturn(Optional.empty())
 
         val exception = assertThrows<HttpStatusException> {
-            billingService.generateBill(patientId.toString(), "1234567890")
+            billService.generateBill(patientId.toString(), "1234567890")
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)
@@ -96,7 +96,7 @@ class BillingServiceTest {
         whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.empty())
 
         val exception = assertThrows<HttpStatusException> {
-            billingService.generateBill(patientId.toString(), "1234567890")
+            billService.generateBill(patientId.toString(), "1234567890")
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)
@@ -106,7 +106,7 @@ class BillingServiceTest {
     @Test
     fun `should throw exception when patient ID format is invalid`() {
         val exception = assertThrows<HttpStatusException> {
-            billingService.generateBill("invalid-uuid", "1234567890")
+            billService.generateBill("invalid-uuid", "1234567890")
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
@@ -150,7 +150,7 @@ class BillingServiceTest {
 
         whenever(patientRepository.findById(patientId)).thenReturn(Optional.of(patientEntity))
         whenever(doctorRepository.findById("1234567890")).thenReturn(Optional.of(doctorEntity))
-        whenever(billingRepository.save(any())).thenReturn(savedBillEntity)
+        whenever(billRepository.save(any())).thenReturn(savedBillEntity)
 
         val request = SaveBillRequest(
             patientId = patientId.toString(),
@@ -164,7 +164,7 @@ class BillingServiceTest {
             coPayRatePercentage = 10.0
         )
 
-        val response = billingService.saveBill(request)
+        val response = billService.saveBill(request)
 
         assertNotNull(response.id)
         assertNotNull(response.createdAt)
@@ -185,7 +185,7 @@ class BillingServiceTest {
         )
 
         val exception = assertThrows<HttpStatusException> {
-            billingService.saveBill(request)
+            billService.saveBill(request)
         }
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.status)
@@ -210,7 +210,7 @@ class BillingServiceTest {
         )
 
         val exception = assertThrows<HttpStatusException> {
-            billingService.saveBill(request)
+            billService.saveBill(request)
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)
@@ -246,7 +246,7 @@ class BillingServiceTest {
         )
 
         val exception = assertThrows<HttpStatusException> {
-            billingService.saveBill(request)
+            billService.saveBill(request)
         }
 
         assertEquals(HttpStatus.NOT_FOUND, exception.status)
