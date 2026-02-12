@@ -1,12 +1,12 @@
 import React from 'react';
-import BillingForm from './BillingForm';
+import GenerateBill from './GenerateBill.tsx';
 import { useApp } from "../../hooks";
 
 const BillingSection = (): React.ReactNode => {
     const { patientModal, doctorModal } = useApp();
 
     return (
-        <BillingForm
+        <GenerateBill
             onOpenPatientModal={patientModal.open}
             onOpenDoctorModal={doctorModal.open}
         />

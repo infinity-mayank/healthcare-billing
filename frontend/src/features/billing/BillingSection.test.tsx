@@ -4,7 +4,7 @@ import BillingSection from './BillingSection';
 import { useApp } from '../../hooks';
 
 vi.mock('../../hooks/useApp');
-vi.mock('./BillingForm', () => ({
+vi.mock('./GenerateBill', () => ({
     default: ({ onOpenPatientModal, onOpenDoctorModal }: { onOpenPatientModal: () => void, onOpenDoctorModal: () => void }) => (
         <div data-testid="billing-form">
             <button onClick={onOpenPatientModal}>Mock Open Patient Modal</button>
@@ -16,7 +16,7 @@ vi.mock('./BillingForm', () => ({
 const mockUseApp = useApp as Mock;
 
 describe('BillingSection', () => {
-    it('render BillingForm', () => {
+    it('render GenerateBill', () => {
         const mockOpenPatient = vi.fn();
         const mockOpenDoctor = vi.fn();
         mockUseApp.mockReturnValue({
