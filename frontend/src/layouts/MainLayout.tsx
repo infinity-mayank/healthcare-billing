@@ -9,7 +9,7 @@ export const MainLayout = ({ children }: MainLayoutProps): ReactNode => {
     return (
         <Box
             sx={{
-                height: '100%',
+                height: '100vh',
                 width: '100%',
                 bgcolor: 'teal.800',
                 overflow: 'auto'
