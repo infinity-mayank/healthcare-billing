@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Paper } from '@mui/material';
+import { Box, Button, Paper } from '@mui/material';
 import type { Bill, Doctor, Patient } from "../../shared/types";
 import { patientAPI } from "../patient/patientApi";
 import { useSnackbar, useApp } from "../../hooks";
@@ -8,6 +8,7 @@ import { billingAPI } from "./billingApi";
 import Header from './Header.tsx';
 import Selectors from './Selectors.tsx';
 import BillBreakdown from './BillBreakdown';
+import { BILLING_LABELS, EMPTY_STRING } from "../../constants";
 
 interface BillingFormProps {
     onOpenPatientModal: () => void;
@@ -22,9 +23,9 @@ const GenerateBill = ({
     const [patients, setPatients] = useState<Patient[]>([]);
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [bill, setBill] = useState<Bill | null>(null);
-    const [selectedPatientId, setSelectedPatientId] = useState('');
-    const [selectedDoctorId, setSelectedDoctorId] = useState('');
-    const { showError } = useSnackbar();
+    const [selectedPatientId, setSelectedPatientId] = useState(EMPTY_STRING);
+    const [selectedDoctorId, setSelectedDoctorId] = useState(EMPTY_STRING);
+    const { showError, showSuccess } = useSnackbar();
 
     const loadPatients = useCallback(async () => {
         try {
@@ -75,6 +76,25 @@ const GenerateBill = ({
         loadBillData();
     }, [selectedDoctorId, selectedPatientId, generateBill]);
 
+    const resetSelections = useCallback(() => {
+        setSelectedPatientId(EMPTY_STRING);
+        setSelectedDoctorId(EMPTY_STRING);
+        setBill(null);
+    }, []);
+
+    const handleSaveBill = async () => {
+        if (!bill) return;
+        try {
+            await billingAPI.saveBill(bill);
+            resetSelections();
+        } catch (error) {
+            console.error('Failed to save bill:', error);
+            showError('Failed to save bill. Please try again.');
+        } finally {
+            showSuccess('Bill saved successfully!');
+        }
+    }
+
     return (
         <Paper
             elevation={3}
@@ -97,7 +117,21 @@ const GenerateBill = ({
                 onDoctorChange={setSelectedDoctorId}
             />
 
-            {bill && <BillBreakdown bill={bill} />}
+            {
+                bill &&
+                    <>
+                        <BillBreakdown bill={bill} />
+                        <Box display="flex" justifyContent="flex-end" mt={2}>
+                            <Button
+                                variant="contained"
+                                onClick={handleSaveBill}
+                                sx={{ textTransform: 'none' }}
+                            >
+                                {BILLING_LABELS.SAVE_BILL}
+                            </Button>
+                        </Box>
+                    </>
+            }
         </Paper>
     );
 };

@@ -9,5 +9,8 @@ export const billingAPI = {
         }).toString();
 
         return apiClient.get<Bill>(`/api/bill/generate?${query}`);
+    },
+    saveBill: (bill: Bill): Promise<void> => {
+        return apiClient.post('/api/bill/save', bill);
     }
 };

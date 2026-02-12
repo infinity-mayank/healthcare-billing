@@ -12,7 +12,10 @@ vi.mock('../patient/patientApi');
 vi.mock('../doctor/doctorApi');
 vi.mock('./billingApi');
 vi.mock('../../hooks', () => ({
-    useSnackbar: () => ({ showError: vi.fn() }),
+    useSnackbar: () => ({
+        showError: vi.fn(),
+        showSuccess: vi.fn()
+    }),
     useApp: () => ({ refreshCounter: 0 })
 }));
 
@@ -192,6 +195,68 @@ describe('GenerateBill', () => {
         await waitFor(() => {
             expect(billingAPI.generateBill).toHaveBeenCalledWith('1234567890', '1');
             expect(screen.getByText(BILLING_LABELS.BILL_BREAKDOWN)).toBeInTheDocument();
+        });
+    });
+
+    it('saves bill when Save Bill button is clicked', async () => {
+        const mockBill: Bill = {
+            patientId: '1',
+            doctorNpiNumber: '1234567890',
+            consultationFee: 1000.0,
+            taxAmount: 120.0,
+            totalAmount: 1120.0,
+            coPayAmount: 112.0,
+            insurancePayableAmount: 1008.0,
+            taxRatePercentage: 12.0,
+            coPayRatePercentage: 10.0
+        };
+
+        vi.mocked(billingAPI.generateBill).mockResolvedValue(mockBill);
+        vi.mocked(billingAPI.saveBill).mockResolvedValue(undefined);
+
+        render(
+            <GenerateBill
+                onOpenPatientModal={mockOnOpenPatientModal}
+                onOpenDoctorModal={mockOnOpenDoctorModal}
+            />
+        );
+
+        await waitFor(() => {
+            expect(patientAPI.getAll).toHaveBeenCalled();
+            expect(doctorAPI.getAll).toHaveBeenCalled();
+        });
+
+        const patientSelect = screen.getByRole('combobox', { name: /select patient/i });
+        const doctorSelect = screen.getByRole('combobox', { name: /select doctor/i });
+
+        await act(async () => {
+            fireEvent.mouseDown(patientSelect);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByText('John Doe'));
+        });
+
+        await act(async () => {
+            fireEvent.mouseDown(doctorSelect);
+        });
+
+        await act(async () => {
+            fireEvent.click(screen.getByText('Jolly Rancho - ORTHO'));
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText(BILLING_LABELS.BILL_BREAKDOWN)).toBeInTheDocument();
+        });
+
+        const saveBillButton = screen.getByRole('button', { name: /save bill/i });
+
+        await act(async () => {
+            fireEvent.click(saveBillButton);
+        });
+
+        await waitFor(() => {
+            expect(billingAPI.saveBill).toHaveBeenCalledWith(mockBill);
         });
     });
 });
