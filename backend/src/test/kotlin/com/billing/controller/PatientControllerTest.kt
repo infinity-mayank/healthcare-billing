@@ -102,6 +102,69 @@ class PatientControllerTest {
     }
 
     @Test
+    fun `should return 400 when insuranceBIN is invalid`() {
+        val invalidJson = PatientRegistrationRequest(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "01/01/1990",
+            insuranceBIN = "123456BIN",
+            insurancePCN = "999881",
+            insuranceMemberID = "1983748"
+        )
+
+        val request = HttpRequest.POST("/api/patients", invalidJson)
+            .contentType(MediaType.APPLICATION_JSON)
+
+        val exception = assertThrows<HttpClientResponseException> {
+            client.toBlocking().exchange(request, Any::class.java)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+    }
+
+    @Test
+    fun `should return 400 when insurancePCN is invalid`() {
+        val invalidJson = PatientRegistrationRequest(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "01/01/1990",
+            insuranceBIN = "123456",
+            insurancePCN = "999881PCN",
+            insuranceMemberID = "1983748"
+        )
+
+        val request = HttpRequest.POST("/api/patients", invalidJson)
+            .contentType(MediaType.APPLICATION_JSON)
+
+        val exception = assertThrows<HttpClientResponseException> {
+            client.toBlocking().exchange(request, Any::class.java)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+    }
+
+    @Test
+    fun `should return 400 when insuranceMemberID is invalid`() {
+        val invalidJson = PatientRegistrationRequest(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "01/01/1990",
+            insuranceBIN = "123456",
+            insurancePCN = "999881",
+            insuranceMemberID = "1983748MID"
+        )
+
+        val request = HttpRequest.POST("/api/patients", invalidJson)
+            .contentType(MediaType.APPLICATION_JSON)
+
+        val exception = assertThrows<HttpClientResponseException> {
+            client.toBlocking().exchange(request, Any::class.java)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.status)
+    }
+
+    @Test
     fun `should get all patients and return 200`() {
         val patient1 = PatientRegistrationRequest(
             firstName = "John",
