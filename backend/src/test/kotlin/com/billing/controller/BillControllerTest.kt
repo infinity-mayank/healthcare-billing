@@ -119,15 +119,6 @@ class BillControllerTest {
         val saveBillRequest = SaveBillRequest(
             patientId = firstBill.patientId,
             doctorNpiNumber = firstBill.doctorNpiNumber,
-            consultationFee = firstBill.consultationFee,
-            discountAmount = firstBill.discountAmount,
-            discountPercentage = firstBill.discountPercentage,
-            taxAmount = firstBill.taxAmount,
-            totalAmount = firstBill.totalAmount,
-            coPayAmount = firstBill.coPayAmount,
-            insurancePayableAmount = firstBill.insurancePayableAmount,
-            taxRatePercentage = firstBill.taxRatePercentage,
-            coPayRatePercentage = firstBill.coPayRatePercentage
         )
         client.toBlocking()
             .exchange(HttpRequest.POST("/api/bill/save", saveBillRequest), SaveBillResponse::class.java)
@@ -261,16 +252,7 @@ class BillControllerTest {
 
         val saveBillRequest = SaveBillRequest(
             patientId = patientId,
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 108.0,
-            totalAmount = 1108.0,
-            coPayAmount = 110.8,
-            insurancePayableAmount = 997.2,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 100.0,
-            discountPercentage = 10.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val response = client.toBlocking()
@@ -285,16 +267,7 @@ class BillControllerTest {
     fun `should return 400 when saving bill with invalid patient ID format`() {
         val saveBillRequest = SaveBillRequest(
             patientId = "invalid-uuid",
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val exception = assertThrows<HttpClientResponseException> {
@@ -317,16 +290,7 @@ class BillControllerTest {
 
         val saveBillRequest = SaveBillRequest(
             patientId = UUID.randomUUID().toString(),
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val exception = assertThrows<HttpClientResponseException> {
@@ -352,16 +316,7 @@ class BillControllerTest {
 
         val saveBillRequest = SaveBillRequest(
             patientId = patientId,
-            doctorNpiNumber = "9999999999",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "9999999999"
         )
 
         val exception = assertThrows<HttpClientResponseException> {

@@ -1,28 +1,131 @@
-## Micronaut 4.10.7 Documentation
+# Healthcare Billing System - Backend
 
-- [User Guide](https://docs.micronaut.io/4.10.7/guide/index.html)
-- [API Reference](https://docs.micronaut.io/4.10.7/api/index.html)
-- [Configuration Reference](https://docs.micronaut.io/4.10.7/guide/configurationreference.html)
-- [Micronaut Guides](https://guides.micronaut.io/index.html)
----
+A healthcare billing management system built with Micronaut 4.10.7 and Kotlin. This backend API handles patient registration, doctor management, and automated billing calculations with tax, insurance calculations and discount calculations.
 
-- [Micronaut Gradle Plugin documentation](https://micronaut-projects.github.io/micronaut-gradle-plugin/latest/)
-- [GraalVM Gradle Plugin documentation](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
-- [Shadow Gradle Plugin](https://gradleup.com/shadow/)
-## Feature serialization-jackson documentation
+## Features
 
-- [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
+- **Patient Management**: Register and manage patient information with insurance details
+- **Doctor Management**: Track healthcare providers with NPI numbers and specialties
+  - Specialities include: Cardiology, Orthopedics
+- **Automated Billing**: Generate bills with automatic calculations for:
+  - Consultation fees
+  - Discount percentages
+  - Tax calculations
+  - Co-pay amounts
+  - Insurance payable amounts
+- **H2 Database**: In-memory database for development and testing
+- **RESTful API**: Clean REST endpoints with proper validation
+- **Comprehensive Testing**: Unit Tests
 
+## Tech Stack
 
-## Feature ksp documentation
+- **Framework**: Micronaut 4.10.7
+- **Language**: Kotlin 1.9.25
+- **Build Tool**: Gradle with Kotlin DSL
+- **JDK**: Java 21
+- **Database**: H2 (in-memory)
+- **Data Access**: Micronaut Data JDBC with HikariCP
+- **Serialization**: Jackson with Kotlin module
+- **Validation**: Jakarta Validation API
+- **Testing**: JUnit 5, Mockito Kotlin
+- **Processing**: Kotlin Symbol Processing (KSP)
 
-- [Micronaut Kotlin Symbol Processing (KSP) documentation](https://docs.micronaut.io/latest/guide/#kotlin)
+## Prerequisites
 
-- [https://kotlinlang.org/docs/ksp-overview.html](https://kotlinlang.org/docs/ksp-overview.html)
+- JDK 21
+- Gradle (wrapper included)
 
+## Getting Started
 
-## Feature micronaut-aot documentation
+### Build the Project
 
-- [Micronaut AOT documentation](https://micronaut-projects.github.io/micronaut-aot/latest/guide/)
+```bash
+./gradlew build
+```
 
+### Run the Application
+
+```bash
+./gradlew run
+```
+
+The server will start on `http://localhost:8080`
+
+### Run Tests
+
+```bash
+./gradlew test
+```
+
+## API Endpoints
+
+### Patients
+
+- `POST /api/patients` - Register a new patient
+- `GET /api/patients` - Get all patients
+
+### Doctors
+
+- `POST /api/doctors` - Register a new doctor
+- `GET /api/doctors` - Get all doctors
+
+### Billing
+
+- `GET /api/bill/generate?patientId={id}&doctorNpiNumber={npi}` - Generate a bill
+- `POST /api/bill/save` - Save a bill
+
+### Health Check
+
+- `GET /health` - Application health status
+
+## Configuration
+
+The application can be configured via `src/main/resources/application.yml`:
+
+```yaml
+billing:
+  tax-rate: 0.12           # 12% tax rate
+  co-pay-rate: 0.10        # 10% co-pay rate
+  min-discount-rate: 0.10  # 10% minimum discount rate
+```
+
+## Database Schema
+
+The application uses H2 database with the following tables:
+
+- **doctors**: NPI number, name, specialty, practice start date
+- **patients**: Patient details with insurance information (BIN, PCN, Member ID)
+- **bills**: Complete billing records with all calculations
+
+Schema is automatically initialized from `src/main/resources/schema.sql`
+
+## Project Structure
+
+```
+backend/
+├── src/
+│   ├── main/
+│   │   ├── kotlin/com/billing/
+│   │   │   ├── controller/     # REST controllers
+│   │   │   ├── service/        # Business logic
+│   │   │   ├── repository/     # Data access layer
+│   │   │   ├── entity/         # Database entities
+│   │   │   ├── model/          # Domain models
+│   │   │   └── dto/            # Data transfer objects
+│   │   └── resources/
+│   │       ├── application.yml # Application config
+│   │       └── schema.sql      # Database schema
+│   └── test/                   # Unit and integration tests
+├── build.gradle.kts            # Build configuration
+└── README.md
+```
+
+## Testing
+
+The project includes comprehensive tests:
+
+- Controller tests with HTTP client
+- Service layer unit tests with Mockito
+- Repository integration tests
+- Model validation tests
 

@@ -225,16 +225,7 @@ class BillServiceTest {
 
         val request = SaveBillRequest(
             patientId = patientId.toString(),
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val response = billService.saveBill(request)
@@ -247,16 +238,7 @@ class BillServiceTest {
     fun `should throw exception when saving bill with invalid patient ID format`() {
         val request = SaveBillRequest(
             patientId = "invalid-uuid",
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val exception = assertThrows<HttpStatusException> {
@@ -274,16 +256,7 @@ class BillServiceTest {
 
         val request = SaveBillRequest(
             patientId = patientId.toString(),
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val exception = assertThrows<HttpStatusException> {
@@ -312,16 +285,7 @@ class BillServiceTest {
 
         val request = SaveBillRequest(
             patientId = patientId.toString(),
-            doctorNpiNumber = "1234567890",
-            consultationFee = 1000.0,
-            taxAmount = 120.0,
-            totalAmount = 1120.0,
-            coPayAmount = 112.0,
-            insurancePayableAmount = 1008.0,
-            taxRatePercentage = 12.0,
-            coPayRatePercentage = 10.0,
-            discountAmount = 0.0,
-            discountPercentage = 0.0,
+            doctorNpiNumber = "1234567890"
         )
 
         val exception = assertThrows<HttpStatusException> {

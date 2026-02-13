@@ -5,7 +5,9 @@ import com.billing.dto.BillResponse
 import com.billing.dto.SaveBillRequest
 import com.billing.dto.SaveBillResponse
 import com.billing.entity.BillEntity
+import com.billing.entity.PatientEntity
 import com.billing.mapper.EntityMapper.toDomain
+import com.billing.model.Doctor
 import com.billing.repository.BillRepository
 import com.billing.repository.DoctorRepository
 import com.billing.repository.PatientRepository
@@ -23,42 +25,58 @@ open class BillService(
 ) {
 
     fun generateBill(patientId: String, doctorNpiNumber: String): BillResponse {
-        val patientId = try {
-            UUID.fromString(patientId)
-        } catch (e: IllegalArgumentException) {
-            throw HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid patient ID format")
-        }
-
-        val patientEntity = patientRepository.findById(patientId).orElseThrow {
-            HttpStatusException(HttpStatus.NOT_FOUND, "Patient not found with ID: $patientId")
-        }
-
-        val doctorEntity = doctorRepository.findById(doctorNpiNumber).orElseThrow {
-            HttpStatusException(HttpStatus.NOT_FOUND, "Doctor not found with NPI number: $doctorNpiNumber")
-        }
-
-        val doctor = doctorEntity.toDomain()
-        val yearsOfExperience = doctor.calculateYearsOfExperience()
-
-        val consultationFee = doctor.specialty.getFeeByExperience(yearsOfExperience)
-
-        val priorAppointmentsCount = billRepository.countByPatientId(patientId)
-        val discountPercentage = minOf(priorAppointmentsCount.toDouble(), billingConfiguration.minDiscountRate * 100)
-        val discountAmount = consultationFee * (discountPercentage / 100.0)
-
-        val discountedFee = consultationFee - discountAmount
-
-        val taxAmount = discountedFee * billingConfiguration.taxRate
-
-        val totalAmount = discountedFee + taxAmount
-
-        val coPayAmount = billingConfiguration.coPayRate * totalAmount
-
-        val insurancePayableAmount = totalAmount - coPayAmount
+        val billEntity = calculateBill(patientId, doctorNpiNumber)
 
         return BillResponse(
-            patientId = patientEntity.id.toString(),
-            doctorNpiNumber = doctorEntity.npiNumber,
+            patientId = billEntity.patientId.toString(),
+            doctorNpiNumber = billEntity.doctorNpiNumber,
+            consultationFee = billEntity.consultationFee,
+            taxAmount = billEntity.taxAmount,
+            totalAmount = billEntity.totalAmount,
+            coPayAmount = billEntity.coPayAmount,
+            insurancePayableAmount = billEntity.insurancePayableAmount,
+            taxRatePercentage = billEntity.taxRatePercentage,
+            coPayRatePercentage = billEntity.coPayRatePercentage,
+            discountAmount = billEntity.discountAmount,
+            discountPercentage = billEntity.discountPercentage
+        )
+    }
+
+    fun saveBill(saveBillRequest: SaveBillRequest): SaveBillResponse {
+        val billEntity = calculateBill(saveBillRequest.patientId, saveBillRequest.doctorNpiNumber)
+
+        val savedBill = billRepository.save(billEntity)
+
+        return SaveBillResponse(
+            id = savedBill.id.toString(),
+            createdAt = savedBill.createdAt.toString()
+        )
+    }
+
+    private fun calculateBill(
+        patientId: String,
+        doctorNpiNumber: String
+    ): BillEntity {
+        val patientUuid = parsePatientId(patientId)
+
+        getPatient(patientUuid)
+        val doctor = getDoctor(doctorNpiNumber)
+
+        val consultationFee = calculateConsultationFee(doctor)
+
+        val discountPercentage = calculateDiscountPercentage(patientUuid)
+        val discountAmount = calculateDiscountAmount(consultationFee, discountPercentage)
+
+        val discountedFee = consultationFee - discountAmount
+        val taxAmount = calculateTax(discountedFee)
+        val totalAmount = discountedFee + taxAmount
+
+        val coPayAmount = calculateCoPay(totalAmount)
+        val insurancePayableAmount = totalAmount - coPayAmount
+
+        return BillEntity(
+            patientId = patientUuid,
+            doctorNpiNumber = doctor.npiNumber,
             consultationFee = consultationFee,
             taxAmount = taxAmount,
             totalAmount = totalAmount,
@@ -67,44 +85,59 @@ open class BillService(
             taxRatePercentage = billingConfiguration.taxRate * 100,
             coPayRatePercentage = billingConfiguration.coPayRate * 100,
             discountAmount = discountAmount,
-            discountPercentage = discountPercentage,
+            discountPercentage = discountPercentage
         )
     }
 
-    fun saveBill(request: SaveBillRequest): SaveBillResponse {
-        val patientId = try {
-            UUID.fromString(request.patientId)
+    private fun parsePatientId(patientId: String): UUID {
+        try {
+            return UUID.fromString(patientId)
         } catch (e: IllegalArgumentException) {
             throw HttpStatusException(HttpStatus.BAD_REQUEST, "Invalid patient ID format")
         }
+    }
 
-        patientRepository.findById(patientId).orElseThrow {
-            HttpStatusException(HttpStatus.NOT_FOUND, "Patient not found with ID: ${request.patientId}")
+    private fun getPatient(patientId: UUID): PatientEntity {
+        return patientRepository.findById(patientId).orElseThrow {
+            HttpStatusException(HttpStatus.NOT_FOUND, "Patient not found with ID: $patientId")
         }
+    }
 
-        doctorRepository.findById(request.doctorNpiNumber).orElseThrow {
-            HttpStatusException(HttpStatus.NOT_FOUND, "Doctor not found with NPI number: ${request.doctorNpiNumber}")
-        }
+    private fun getDoctor(doctorNpiNumber: String): Doctor {
+        return doctorRepository.findById(doctorNpiNumber).orElseThrow {
+            HttpStatusException(
+                HttpStatus.NOT_FOUND,
+                "Doctor not found with NPI number: $doctorNpiNumber"
+            )
+        }.toDomain()
+    }
 
-        val billEntity = BillEntity(
-            patientId = patientId,
-            doctorNpiNumber = request.doctorNpiNumber,
-            consultationFee = request.consultationFee,
-            taxAmount = request.taxAmount,
-            totalAmount = request.totalAmount,
-            coPayAmount = request.coPayAmount,
-            insurancePayableAmount = request.insurancePayableAmount,
-            taxRatePercentage = request.taxRatePercentage,
-            coPayRatePercentage = request.coPayRatePercentage,
-            discountAmount = request.discountAmount,
-            discountPercentage = request.discountPercentage,
+    private fun calculateConsultationFee(doctor: Doctor): Double {
+        val experience = doctor.calculateYearsOfExperience()
+        return doctor.specialty.getFeeByExperience(experience)
+    }
+
+    private fun calculateDiscountPercentage(patientId: UUID): Double {
+        val priorAppointments = billRepository.countByPatientId(patientId)
+
+        return minOf(
+            priorAppointments.toDouble(),
+            billingConfiguration.minDiscountRate * 100
         )
+    }
 
-        val savedBill = billRepository.save(billEntity)
+    private fun calculateDiscountAmount(
+        consultationFee: Double,
+        discountPercentage: Double
+    ): Double {
+        return consultationFee * (discountPercentage / 100.0)
+    }
 
-        return SaveBillResponse(
-            id = savedBill.id.toString(),
-            createdAt = billEntity.createdAt.toString()
-        )
+    private fun calculateTax(amount: Double): Double {
+        return amount * billingConfiguration.taxRate
+    }
+
+    private fun calculateCoPay(totalAmount: Double): Double {
+        return totalAmount * billingConfiguration.coPayRate
     }
 }

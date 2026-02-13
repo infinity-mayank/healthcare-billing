@@ -59,9 +59,6 @@ data class PatientResponse(
     val insuranceMemberID: String
 ) {
     companion object {
-        /**
-         * Convert Patient model to response DTO
-         */
         fun fromPatient(patient: Patient): PatientResponse {
             return PatientResponse(
                 id = patient.id,

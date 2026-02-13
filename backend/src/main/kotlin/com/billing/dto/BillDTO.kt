@@ -30,33 +30,6 @@ data class SaveBillRequest(
 
     @field:NotBlank(message = "Doctor NPI number is required")
     val doctorNpiNumber: String,
-
-    @field:Positive(message = "Consultation fee must be positive")
-    val consultationFee: Double,
-
-    @field:Positive(message = "Tax amount must be positive")
-    val taxAmount: Double,
-
-    @field:Positive(message = "Total amount must be positive")
-    val totalAmount: Double,
-
-    @field:Positive(message = "Co-pay amount must be positive")
-    val coPayAmount: Double,
-
-    @field:Positive(message = "Insurance payable amount must be positive")
-    val insurancePayableAmount: Double,
-
-    @field:PositiveOrZero(message = "Tax rate percentage must be positive or zero")
-    val taxRatePercentage: Double,
-
-    @field:PositiveOrZero(message = "Co-pay rate percentage must be positive or zero")
-    val coPayRatePercentage: Double,
-
-    @field:PositiveOrZero(message = "Discount amount must be positive or zero")
-    val discountAmount: Double,
-
-    @field:PositiveOrZero(message = "Discount percentage must be positive or zero")
-    val discountPercentage: Double
 )
 
 @Serdeable
