@@ -129,3 +129,8 @@ The project includes comprehensive tests:
 - Repository integration tests
 - Model validation tests
 
+## Assumptions
+
+- No authentication or authorization implemented for any API.
+- Using Bill as an appointment for simplicity.
+
