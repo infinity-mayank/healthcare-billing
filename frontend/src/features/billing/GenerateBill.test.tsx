@@ -156,7 +156,9 @@ describe('GenerateBill', () => {
             coPayAmount: 112.0,
             insurancePayableAmount: 1008.0,
             taxRatePercentage: 12.0,
-            coPayRatePercentage: 10.0
+            coPayRatePercentage: 10.0,
+            discountAmount: 0.0,
+            discountPercentage: 0.0
         };
 
         vi.mocked(billingAPI.generateBill).mockResolvedValue(mockBill);
@@ -208,7 +210,9 @@ describe('GenerateBill', () => {
             coPayAmount: 112.0,
             insurancePayableAmount: 1008.0,
             taxRatePercentage: 12.0,
-            coPayRatePercentage: 10.0
+            coPayRatePercentage: 10.0,
+            discountAmount: 0.0,
+            discountPercentage: 0.0
         };
 
         vi.mocked(billingAPI.generateBill).mockResolvedValue(mockBill);
@@ -256,7 +260,7 @@ describe('GenerateBill', () => {
         });
 
         await waitFor(() => {
-            expect(billingAPI.saveBill).toHaveBeenCalledWith(mockBill);
+            expect(billingAPI.saveBill).toHaveBeenCalledWith({ patientId: '1', doctorNpiNumber: '1234567890'});
         });
     });
 });

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Paper } from '@mui/material';
-import type { Bill, Doctor, Patient } from "../../shared/types";
+import type {Bill, BillSaveRequest, Doctor, Patient} from "../../shared/types";
 import { patientAPI } from "../patient/patientApi";
 import { useSnackbar, useApp } from "../../hooks";
 import { doctorAPI } from "../doctor/doctorApi";
@@ -83,9 +83,13 @@ const GenerateBill = ({
     }, []);
 
     const handleSaveBill = async () => {
-        if (!bill) return;
+        if (!bill && selectedDoctorId && selectedPatientId) return;
         try {
-            await billingAPI.saveBill(bill);
+            const saveRequest = {
+                doctorNpiNumber: selectedDoctorId,
+                patientId: selectedPatientId
+            } as BillSaveRequest;
+            await billingAPI.saveBill(saveRequest);
             resetSelections();
         } catch (error) {
             console.error('Failed to save bill:', error);

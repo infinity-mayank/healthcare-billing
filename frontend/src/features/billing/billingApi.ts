@@ -1,5 +1,5 @@
 import { apiClient } from "../../services/apiClient.ts";
-import type {Bill} from "../../shared/types.ts";
+import type {Bill, BillSaveRequest} from "../../shared/types.ts";
 
 export const billingAPI = {
     generateBill: (doctorNpiNumber: string, patientId: string): Promise<Bill> => {
@@ -10,7 +10,7 @@ export const billingAPI = {
 
         return apiClient.get<Bill>(`/api/bill/generate?${query}`);
     },
-    saveBill: (bill: Bill): Promise<void> => {
-        return apiClient.post('/api/bill/save', bill);
+    saveBill: (data: BillSaveRequest): Promise<void> => {
+        return apiClient.post('/api/bill/save', data);
     }
 };

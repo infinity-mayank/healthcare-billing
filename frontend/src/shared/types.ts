@@ -53,3 +53,8 @@ export interface Bill {
     discountAmount: number;
     discountPercentage: number;
 }
+
+export interface BillSaveRequest {
+    patientId: string;
+    doctorNpiNumber: string;
+}
