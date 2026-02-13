@@ -164,7 +164,6 @@ const PatientModal = ({ isOpen, onClose, onSuccess }: PatientModalProps): React.
             slotProps={{
                 paper: {
                     sx: {
-                        height: '80vh',
                         display: 'flex',
                         flexDirection: 'column',
                     },

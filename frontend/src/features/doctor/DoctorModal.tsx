@@ -184,7 +184,6 @@ const DoctorModal = ({
             slotProps={{
                 paper: {
                     sx: {
-                        height: '80vh',
                         display: 'flex',
                         flexDirection: 'column',
                     },
